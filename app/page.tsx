@@ -3,8 +3,23 @@
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 
+// Types
+interface Story {
+  id: string
+  title: string
+  category: string
+  description: string
+  youtubeUrl?: string
+  youtubeId?: string
+  uploader: string
+  date: string
+  thumbnail?: string
+  language: string
+  region?: string
+}
+
 /* ─────────────────────────────────────────────────────────────
-   Sacred Particle Canvas — floating petals, Om symbols, diyas
+   Sacred Particle Canvas — floating petals, warm particles
 ───────────────────────────────────────────────────────────── */
 function SacredCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -23,20 +38,20 @@ function SacredCanvas() {
     resize()
     window.addEventListener("resize", resize)
 
-    const symbols = ["🪷", "🕉", "✦", "❋", "⊹", "✿", "॰"]
+    const symbols = ["🪷", "✦", "❋", "⊹", "✿", "॰"]
     const particles: {
       x: number; y: number; vx: number; vy: number
       size: number; opacity: number; symbol: string; rotation: number; rotV: number
     }[] = []
 
-    for (let i = 0; i < 45; i++) {
+    for (let i = 0; i < 40; i++) {
       particles.push({
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
         vx: (Math.random() - 0.5) * 0.4,
         vy: -Math.random() * 0.6 - 0.1,
         size: Math.random() * 14 + 8,
-        opacity: Math.random() * 0.35 + 0.05,
+        opacity: Math.random() * 0.3 + 0.05,
         symbol: symbols[Math.floor(Math.random() * symbols.length)],
         rotation: Math.random() * Math.PI * 2,
         rotV: (Math.random() - 0.5) * 0.015,
@@ -78,9 +93,75 @@ function SacredCanvas() {
       ref={canvasRef}
       style={{
         position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
-        pointerEvents: "none", zIndex: 0, opacity: 0.6,
+        pointerEvents: "none", zIndex: 0, opacity: 0.5,
       }}
     />
+  )
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Rangoli Corner & Center Art Animations
+───────────────────────────────────────────────────────────── */
+function RangoliCorner({ position = "top-left", size = 180 }: { position?: "top-left" | "top-right" | "bottom-left" | "bottom-right"; size?: number }) {
+  const styles: React.CSSProperties = {
+    position: "absolute",
+    pointerEvents: "none",
+    zIndex: 1,
+    opacity: 0.22,
+    filter: "drop-shadow(0 0 8px rgba(255, 119, 34, 0.4))",
+  }
+
+  if (position === "top-left") { styles.top = 0; styles.left = 0 }
+  if (position === "top-right") { styles.top = 0; styles.right = 0; styles.transform = "scaleX(-1)" }
+  if (position === "bottom-left") { styles.bottom = 0; styles.left = 0; styles.transform = "scaleY(-1)" }
+  if (position === "bottom-right") { styles.bottom = 0; styles.right = 0; styles.transform = "scale(-1)" }
+
+  return (
+    <svg width={size} height={size} viewBox="0 0 200 200" style={styles}>
+      <g className="rangoli-spin">
+        {[0, 15, 30, 45, 60, 75, 90].map((a, i) => (
+          <circle key={i} cx={100 + 80 * Math.cos((a * Math.PI) / 180)} cy={100 + 80 * Math.sin((a * Math.PI) / 180)} r="3" fill="#D4AF37" />
+        ))}
+        {[0, 30, 60, 90].map((a, i) => (
+          <g key={i} transform={`rotate(${a} 100 100)`}>
+            <path d="M100,100 Q120,40 140,100 Q120,160 100,100 Z" fill="none" stroke="#FF7722" strokeWidth="1.5" />
+            <circle cx="120" cy="70" r="4" fill="#E8789A" />
+            <path d="M100,100 L120,50" stroke="#D4AF37" strokeWidth="1" strokeDasharray="2 2" />
+          </g>
+        ))}
+        <circle cx="100" cy="100" r="25" fill="none" stroke="#D4AF37" strokeWidth="2" />
+        <circle cx="100" cy="100" r="12" fill="#FF7722" opacity="0.6" />
+        <text x="100" y="105" textAnchor="middle" fontSize="14" fill="#FFD700">🪷</text>
+      </g>
+    </svg>
+  )
+}
+
+function RangoliCenterMotif({ size = 240 }: { size?: number }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "center", margin: "2rem auto", position: "relative" }}>
+      <svg width={size} height={size} viewBox="0 0 300 300" style={{ opacity: 0.35, animation: "rangoliPulse 8s ease-in-out infinite" }}>
+        <g transform="translate(150,150)">
+          <g style={{ animation: "mandalaRotate 35s linear infinite" }}>
+            {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((a, i) => (
+              <g key={i} transform={`rotate(${a})`}>
+                <path d="M0,0 Q25,-60 50,0 Q25,60 0,0 Z" fill="none" stroke={i % 2 === 0 ? "#FF7722" : "#D4AF37"} strokeWidth="1.5" />
+                <circle cx="25" cy="-40" r="4" fill={i % 2 === 0 ? "#E8789A" : "#FFD700"} />
+              </g>
+            ))}
+            <circle cx="0" cy="0" r="60" fill="none" stroke="#D4AF37" strokeWidth="2" strokeDasharray="6 4" />
+            <circle cx="0" cy="0" r="90" fill="none" stroke="#FF7722" strokeWidth="1" />
+          </g>
+          <g style={{ animation: "mandalaRevRotate 25s linear infinite" }}>
+            {[0, 45, 90, 135, 180, 225, 270, 315].map((a, i) => (
+              <circle key={i} cx={35 * Math.cos((a * Math.PI) / 180)} cy={35 * Math.sin((a * Math.PI) / 180)} r="5" fill="#FF7722" />
+            ))}
+          </g>
+          <circle cx="0" cy="0" r="20" fill="#6B1A1A" />
+          <text x="0" y="7" textAnchor="middle" fontSize="18" fill="#FFD700">🌿</text>
+        </g>
+      </svg>
+    </div>
   )
 }
 
@@ -141,7 +222,7 @@ function Mandala({ size = 300, opacity = 0.06, spinning = true }: { size?: numbe
         <circle cx="0" cy="0" r="70" fill="none" stroke="#D4AF37" strokeWidth="1" strokeDasharray="6 4" />
         <circle cx="0" cy="0" r="100" fill="none" stroke="#FF7722" strokeWidth="0.8" strokeDasharray="3 5" />
         <circle cx="0" cy="0" r="130" fill="none" stroke="#D4AF37" strokeWidth="0.8" />
-        <text x="0" y="8" textAnchor="middle" fontSize="22" fill="#FF7722" opacity="0.8" fontFamily="serif">🕉</text>
+        <text x="0" y="8" textAnchor="middle" fontSize="22" fill="#FF7722" opacity="0.8" fontFamily="serif">🌿</text>
       </g>
     </svg>
   )
@@ -155,7 +236,7 @@ function OrnamentDivider({ light = false }: { light?: boolean }) {
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem 0", gap: "1rem" }}>
       <div style={{ flex: 1, height: "1px", background: `linear-gradient(to right, transparent, ${c})` }} />
-      <span style={{ fontSize: "1.4rem", color: c, lineHeight: 1 }}>❋ 🕉 ❋</span>
+      <span style={{ fontSize: "1.4rem", color: c, lineHeight: 1 }}>❋ 🌿 ❋</span>
       <div style={{ flex: 1, height: "1px", background: `linear-gradient(to left, transparent, ${c})` }} />
     </div>
   )
@@ -169,6 +250,372 @@ function Diya() {
     <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", margin: "0 0.5rem" }}>
       <div className="diya-flame">🔥</div>
       <div style={{ fontSize: "1.4rem" }}>🪔</div>
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Video Modal — Embedded YouTube Player with In-Player Language Selector
+───────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   Caption/Subtitle types
+───────────────────────────────────────────────────────────── */
+type CaptionSegment = { start: number; dur: number; text: string }
+type TranslatedCaptions = Record<string, CaptionSegment[]>
+
+/* ─────────────────────────────────────────────────────────────
+   VideoModal — AI Translation (Google Cloud Translate)
+───────────────────────────────────────────────────────────── */
+function VideoModal({ story, onClose }: { story: Story | null; onClose: () => void }) {
+  const [activeLang, setActiveLang] = useState("en")
+  const [captions, setCaptions] = useState<CaptionSegment[]>([])
+  const [translatedCaptions, setTranslatedCaptions] = useState<TranslatedCaptions>({})
+  const [currentCaption, setCurrentCaption] = useState<string>("")
+  const [captionLoading, setCaptionLoading] = useState(false)
+  const [captionNote, setCaptionNote] = useState<string>("")
+  const [translatedDesc, setTranslatedDesc] = useState<string>("")
+  const [descLoading, setDescLoading] = useState(false)
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const captionIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const languages = [
+    { code: "en", name: "English" },
+    { code: "hi", name: "हिन्दी (Hindi)" },
+    { code: "sa", name: "संस्कृत (Sanskrit)" },
+    { code: "te", name: "తెలుగు (Telugu)" },
+    { code: "ta", name: "தமிழ் (Tamil)" },
+    { code: "kn", name: "ಕನ್ನಡ (Kannada)" },
+    { code: "ml", name: "മലയാളം (Malayalam)" },
+    { code: "mr", name: "मराठी (Marathi)" },
+  ]
+
+  // ── Lock scroll + ESC close ──
+  useEffect(() => {
+    if (!story) return
+    const orig = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
+    window.addEventListener("keydown", handleKey)
+    return () => {
+      document.body.style.overflow = orig || "unset"
+      window.removeEventListener("keydown", handleKey)
+    }
+  }, [story, onClose])
+
+  // ── Fetch transcript when story changes ──
+  useEffect(() => {
+    if (!story?.youtubeId || story.youtubeId.length !== 11) return
+    setCaptions([])
+    setTranslatedCaptions({})
+    setCurrentCaption("")
+    setCaptionNote("")
+    setCaptionLoading(true)
+    fetch(`/api/transcript?videoId=${story.youtubeId}&lang=ml`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.captions && data.captions.length > 0) {
+          setCaptions(data.captions)
+          setTranslatedCaptions(prev => ({ ...prev, [data.lang]: data.captions }))
+          const autoLabel = data.isAutoGenerated ? ' (auto-generated)' : ''
+          setCaptionNote(`✅ ${data.captions.length} subtitle segments loaded in ${data.langName}${autoLabel}`)   
+        } else {
+          setCaptionNote(data.note || "ℹ️ No subtitles found for this video.")
+        }
+      })
+      .catch(() => setCaptionNote("⚠️ Could not connect to subtitle service."))
+      .finally(() => setCaptionLoading(false))
+  }, [story?.youtubeId])
+
+  // ── Simulated time tracker (advances every second after play) ──
+  useEffect(() => {
+    if (captionIntervalRef.current) clearInterval(captionIntervalRef.current)
+    if (!story) return
+    setElapsedSeconds(0)
+    captionIntervalRef.current = setInterval(() => {
+      setElapsedSeconds(s => s + 1)
+    }, 1000)
+    return () => {
+      if (captionIntervalRef.current) clearInterval(captionIntervalRef.current)
+    }
+  }, [story?.youtubeId, activeLang])
+
+  // ── Find matching caption for current time ──
+  useEffect(() => {
+    const src = translatedCaptions[activeLang] || captions
+    if (!src.length) { setCurrentCaption(""); return }
+    const seg = src.find(c => elapsedSeconds >= c.start && elapsedSeconds < c.start + c.dur)
+    setCurrentCaption(seg?.text ?? "")
+  }, [elapsedSeconds, captions, translatedCaptions, activeLang])
+
+  // ── Translate captions when language changes ──
+  useEffect(() => {
+    if (!captions.length || activeLang === "en") return
+    if (translatedCaptions[activeLang]) return // already translated
+
+    // MyMemory limit: ~500 chars per request — chunk captions into groups
+    const CHUNK_CHAR_LIMIT = 400
+    const chunks: { texts: string[], indices: number[] }[] = []
+    let currentChunk: string[] = []
+    let currentIndices: number[] = []
+    let currentLen = 0
+
+    captions.forEach((c, i) => {
+      const piece = c.text + ' ||| '
+      if (currentLen + piece.length > CHUNK_CHAR_LIMIT && currentChunk.length > 0) {
+        chunks.push({ texts: currentChunk, indices: currentIndices })
+        currentChunk = [c.text]
+        currentIndices = [i]
+        currentLen = piece.length
+      } else {
+        currentChunk.push(c.text)
+        currentIndices.push(i)
+        currentLen += piece.length
+      }
+    })
+    if (currentChunk.length > 0) chunks.push({ texts: currentChunk, indices: currentIndices })
+
+    setCaptionLoading(true)
+    const translatedArr: CaptionSegment[] = [...captions]
+
+    // Translate each chunk sequentially to avoid rate limits
+    const translateChunks = async () => {
+      for (const chunk of chunks) {
+        const batchText = chunk.texts.join(' ||| ')
+        try {
+          const res = await fetch('/api/translate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: batchText, targetLang: activeLang })
+          })
+          const data = await res.json()
+          if (data.translatedText) {
+            const parts: string[] = data.translatedText.split(' ||| ')
+            chunk.indices.forEach((origIdx, j) => {
+              translatedArr[origIdx] = { ...captions[origIdx], text: parts[j] || captions[origIdx].text }
+            })
+          }
+          // Small delay between chunks to respect rate limits
+          await new Promise(r => setTimeout(r, 150))
+        } catch { /* keep original for this chunk */ }
+      }
+      setTranslatedCaptions(prev => ({ ...prev, [activeLang]: translatedArr }))
+      setCaptionLoading(false)
+    }
+
+    translateChunks()
+  }, [activeLang, captions])
+
+  // ── Translate story description when language changes ──
+  useEffect(() => {
+    if (!story) return
+    if (activeLang === "en") { setTranslatedDesc(story.description); return }
+    setDescLoading(true)
+    fetch("/api/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: story.description, targetLang: activeLang })
+    })
+      .then(r => r.json())
+      .then(data => setTranslatedDesc(data.translatedText || story.description))
+      .catch(() => setTranslatedDesc(story.description))
+      .finally(() => setDescLoading(false))
+  }, [activeLang, story?.description])
+
+  if (!story) return null
+
+  return (
+    <div
+      style={{
+        position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: "rgba(0, 0, 0, 0.92)",
+        backdropFilter: "blur(12px)",
+        zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "1rem", overflowY: "auto", animation: "fadeIn 0.25s ease-out"
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: "linear-gradient(145deg, #2D0808 0%, #4A1A00 100%)",
+          border: "2px solid var(--gold)",
+          borderRadius: "18px", width: "100%", maxWidth: "920px",
+          maxHeight: "92vh", overflowY: "auto",
+          boxShadow: "0 25px 70px rgba(0,0,0,0.85)",
+          position: "relative", animation: "scaleIn 0.25s ease-out",
+          margin: "auto"
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header with Prominent Close Button */}
+        <div style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          padding: "1rem 1.5rem", borderBottom: "1px solid rgba(212, 175, 55, 0.3)",
+          background: "rgba(0,0,0,0.4)", sticky: "top", top: 0, zIndex: 10
+        }}>
+          <div>
+            <span style={{ color: "var(--saffron)", fontSize: "0.8rem", fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>
+              {story.category} • {story.region || "Parayakadavu, Kollam, Kerala"}
+            </span>
+            <h3 style={{ color: "var(--bright-gold)", fontSize: "1.25rem", margin: "0.2rem 0 0" }}>
+              🌿 {story.title}
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            title="Close Video (Esc)"
+            style={{
+              background: "linear-gradient(135deg, var(--saffron), var(--deep-saffron))",
+              border: "2px solid var(--bright-gold)",
+              color: "white", width: "42px", height: "42px", borderRadius: "50%",
+              cursor: "pointer", fontSize: "1.3rem", fontWeight: "bold",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 4px 15px rgba(255,119,34,0.5)", flexShrink: 0,
+              transition: "transform 0.2s ease"
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.15)")}
+            onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Language Selector Toolbar */}
+        <div style={{
+          padding: "0.65rem 1.5rem", background: "rgba(0,0,0,0.55)",
+          borderBottom: "1px solid rgba(212,175,55,0.2)",
+          display: "flex", alignItems: "center", gap: "0.8rem", flexWrap: "wrap"
+        }}>
+          <span style={{
+            color: "var(--bright-gold)", fontSize: "0.82rem", fontWeight: 700,
+            fontFamily: "Poppins, sans-serif", display: "flex", alignItems: "center", gap: "0.4rem"
+          }}>
+            🤖 AI Translate:
+          </span>
+          <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+            {languages.map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => setActiveLang(lang.code)}
+                title={`Translate subtitles & description to ${lang.name}`}
+                style={{
+                  background: activeLang === lang.code
+                    ? "linear-gradient(135deg, var(--saffron), var(--deep-saffron))"
+                    : "rgba(212,175,55,0.12)",
+                  color: activeLang === lang.code ? "white" : "var(--sandalwood)",
+                  border: `1px solid ${activeLang === lang.code ? "var(--saffron)" : "rgba(212,175,55,0.25)"}`,
+                  borderRadius: "14px", padding: "0.22rem 0.7rem", fontSize: "0.78rem",
+                  fontFamily: "Poppins, sans-serif", cursor: "pointer",
+                  transition: "all 0.2s", fontWeight: activeLang === lang.code ? 600 : 400
+                }}
+              >
+                {lang.name}
+              </button>
+            ))}
+          </div>
+          {captionLoading && (
+            <span style={{
+              fontSize: "0.72rem", color: "var(--saffron)", fontFamily: "Poppins, sans-serif",
+              animation: "pulse 1s infinite"
+            }}>⏳ Translating…</span>
+          )}
+        </div>
+
+        {/* YouTube Embed Player */}
+        <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, backgroundColor: "#000" }}>
+          <iframe
+            key={`${story.youtubeId}-${activeLang}`}
+            src={
+              story.youtubeId && story.youtubeId.length === 11
+                ? `https://www.youtube.com/embed/${story.youtubeId}?autoplay=1&rel=0&modestbranding=1&cc_load_policy=1&cc_lang_pref=${activeLang}&hl=${activeLang}`
+                : `https://www.youtube.com/embed/8Qn_spdM5Zg?autoplay=1&rel=0&modestbranding=1&cc_load_policy=1&cc_lang_pref=${activeLang}&hl=${activeLang}`
+            }
+            title={story.title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }}
+          />
+        </div>
+
+        {/* ── AI Subtitle Panel ─────────────────────────────────── */}
+        <div style={{
+          minHeight: "3.5rem", background: "rgba(0,0,0,0.75)",
+          borderBottom: "1px solid rgba(212,175,55,0.15)",
+          padding: "0.6rem 1.5rem", display: "flex", alignItems: "center",
+          justifyContent: "space-between", gap: "1rem"
+        }}>
+          <div style={{ flex: 1 }}>
+            {currentCaption ? (
+              <p style={{
+                margin: 0, color: "#fff", fontSize: "1.05rem",
+                fontFamily: "Poppins, sans-serif", lineHeight: "1.55",
+                textShadow: "0 2px 8px rgba(0,0,0,0.9)",
+                animation: "fadeIn 0.3s ease"
+              }}>
+                💬 {currentCaption}
+              </p>
+            ) : captionLoading ? (
+              <p style={{ margin: 0, color: "rgba(255,200,100,0.7)", fontSize: "0.85rem", fontFamily: "Poppins, sans-serif" }}>
+                ⏳ Loading AI-translated subtitles…
+              </p>
+            ) : captionNote ? (
+              <p style={{ margin: 0, color: "rgba(255,200,100,0.55)", fontSize: "0.8rem", fontFamily: "Poppins, sans-serif" }}>
+                {captionNote}
+              </p>
+            ) : (
+              <p style={{ margin: 0, color: "rgba(255,255,255,0.35)", fontSize: "0.82rem", fontFamily: "Poppins, sans-serif" }}>
+                🤖 Translated subtitles appear here as the video plays. Pick a language above ↑
+              </p>
+            )}
+          </div>
+          <span style={{
+            fontSize: "0.7rem", color: "rgba(212,175,55,0.5)",
+            fontFamily: "Poppins", whiteSpace: "nowrap"
+          }}>⏱ {elapsedSeconds}s</span>
+        </div>
+
+        {/* ── Translated Story Description ────────────────────── */}
+        <div style={{ padding: "1.2rem 1.5rem", color: "var(--sandalwood)" }}>
+          <p style={{
+            fontSize: "0.95rem", lineHeight: "1.75", marginBottom: "0.8rem",
+            color: "rgba(255,248,240,0.9)", position: "relative"
+          }}>
+            {descLoading ? (
+              <span style={{ opacity: 0.5, fontStyle: "italic" }}>Translating description…</span>
+            ) : (
+              translatedDesc || story.description
+            )}
+            {activeLang !== "en" && !descLoading && (
+              <span style={{
+                marginLeft: "0.5rem", fontSize: "0.72rem", background: "rgba(255,119,34,0.2)",
+                color: "var(--saffron)", borderRadius: "6px", padding: "0.1rem 0.4rem",
+                fontFamily: "Poppins, sans-serif", verticalAlign: "middle"
+              }}>🤖 AI Translated</span>
+            )}
+          </p>
+
+          {/* Caption status note */}
+          {captionNote && !captionLoading && captions.length === 0 && (
+            <div style={{
+              background: "rgba(255,200,0,0.08)", border: "1px solid rgba(212,175,55,0.25)",
+              borderRadius: "8px", padding: "0.5rem 0.8rem", marginBottom: "0.8rem",
+              fontSize: "0.8rem", color: "rgba(255,220,100,0.85)", fontFamily: "Poppins, sans-serif"
+            }}>
+              {captionNote}
+              <br />
+              <span style={{ opacity: 0.7 }}>
+                💡 Tip: You can also use the YouTube <strong>[CC]</strong> button → <strong>Auto-translate</strong> directly in the player.
+              </span>
+            </div>
+          )}
+
+
+
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", opacity: 0.85, fontFamily: "Poppins, sans-serif" }}>
+            <span>🎥 Channel: <a href="https://www.youtube.com/@ashrithvenkat5507" target="_blank" rel="noopener noreferrer" style={{ color: "var(--bright-gold)", textDecoration: "underline" }}>@ashrithvenkat5507</a></span>
+            <span>🎙 By: {story.uploader}</span>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -191,7 +638,20 @@ export default function Home() {
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
-  const shloka = "सर्वे भवन्तु सुखिनः। सर्वे सन्तु निरामयाः।"
+  // Backend Stories State (Channel Videos)
+  const [stories, setStories] = useState<Story[]>([])
+  const [activeVideoStory, setActiveVideoStory] = useState<Story | null>(null)
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("All")
+
+  // Upload Form State
+  const [uploadTitle, setUploadTitle] = useState("")
+  const [uploadCategory, setUploadCategory] = useState("Oral History & Traditions")
+  const [uploadDescription, setUploadDescription] = useState("")
+  const [uploadVideoUrl, setUploadVideoUrl] = useState("")
+  const [uploadLanguage, setUploadLanguage] = useState("Telugu")
+  const [uploadRegion, setUploadRegion] = useState("")
+
+  const shloka = "वसुधैव कुटुम्बकम् — The World is One Family."
 
   const teamMembers = [
     {
@@ -201,7 +661,7 @@ export default function Home() {
     },
     {
       id: 2, name: "Woona Venkat Ashrith", role: "Video Production Lead", year: "3rd Year",
-      contribution: "Leads video recording and editing, ensures high-quality production standards and manages all multimedia content.",
+      contribution: "Leads video recording and editing, manages official YouTube channel @ashrithvenkat5507 and multimedia content.",
       image: "/team-member-2.jpg",
     },
     {
@@ -225,6 +685,128 @@ export default function Home() {
       image: "/team-member-6.jpg",
     },
   ]
+
+  // Fetch stories from Backend API
+  const fetchStories = async () => {
+    try {
+      const res = await fetch("/api/stories")
+      const data = await res.json()
+      if (data.success && data.stories) {
+        setStories(data.stories)
+      }
+    } catch {
+      setStories([
+        {
+          id: "1",
+          title: "Tsunami Survival & Coastal Memories — Parayakadavu",
+          category: "Oral History & Traditions",
+          description: "Elder oral accounts of the 2004 Indian Ocean Tsunami impact, survival stories, and community resilience recorded in Parayakadavu, Karunagappally, Kollam, Kerala.",
+          youtubeUrl: "https://youtu.be/BFVAHkUZlbM",
+          youtubeId: "BFVAHkUZlbM",
+          uploader: "Woona Venkat Ashrith (@ashrithvenkat5507)",
+          date: "2025-02-15",
+          thumbnail: "https://img.youtube.com/vi/BFVAHkUZlbM/hqdefault.jpg",
+          language: "Malayalam",
+          region: "Parayakadavu, Karunagappally, Kollam, Kerala"
+        },
+        {
+          id: "2",
+          title: "Childhood Memories & Village Festivals of Coastal Kollam",
+          category: "Folk Lore & Living Traditions",
+          description: "Village elders sharing cherished memories of traditional temple festivals, community gatherings, and childhood life in Parayakadavu before the tsunami.",
+          youtubeUrl: "https://youtu.be/SPA1q-FKIbk",
+          youtubeId: "SPA1q-FKIbk",
+          uploader: "Woona Venkat Ashrith (@ashrithvenkat5507)",
+          date: "2025-02-14",
+          thumbnail: "https://img.youtube.com/vi/SPA1q-FKIbk/hqdefault.jpg",
+          language: "Malayalam",
+          region: "Parayakadavu, Karunagappally, Kollam, Kerala"
+        },
+        {
+          id: "3",
+          title: "Coastal Village Heritage & Traditional Livelihoods",
+          category: "Folk Lore & Living Traditions",
+          description: "Documenting traditional fishing heritage, coir weaving, and coastal village customs recorded during student field research in Karunagappally.",
+          youtubeUrl: "https://youtu.be/gbQPp88oiC8",
+          youtubeId: "gbQPp88oiC8",
+          uploader: "Woona Venkat Ashrith (@ashrithvenkat5507)",
+          date: "2025-02-12",
+          thumbnail: "https://img.youtube.com/vi/gbQPp88oiC8/hqdefault.jpg",
+          language: "Malayalam",
+          region: "Parayakadavu, Karunagappally, Kollam, Kerala"
+        },
+        {
+          id: "4",
+          title: "Oral Traditions & Elder Wisdom — Parayakadavu Community",
+          category: "Oral History & Traditions",
+          description: "First-hand accounts of traditional life, maritime folklore, and generational wisdom shared by village matriarchs and patriarchs.",
+          youtubeUrl: "https://youtu.be/BMPZDY0kE18",
+          youtubeId: "BMPZDY0kE18",
+          uploader: "Woona Venkat Ashrith (@ashrithvenkat5507)",
+          date: "2025-02-10",
+          thumbnail: "https://img.youtube.com/vi/BMPZDY0kE18/hqdefault.jpg",
+          language: "Malayalam",
+          region: "Parayakadavu, Karunagappally, Kollam, Kerala"
+        },
+        {
+          id: "5",
+          title: "Post-Tsunami Community Rebuilding & Cultural Resilience",
+          category: "Oral History & Traditions",
+          description: "Reflections on how the Parayakadavu community preserved their cultural identity, festivals, and social cohesion after the 2004 tsunami disaster.",
+          youtubeUrl: "https://youtu.be/Y6raIybQXng",
+          youtubeId: "Y6raIybQXng",
+          uploader: "Woona Venkat Ashrith (@ashrithvenkat5507)",
+          date: "2025-02-08",
+          thumbnail: "https://img.youtube.com/vi/Y6raIybQXng/hqdefault.jpg",
+          language: "Malayalam",
+          region: "Parayakadavu, Karunagappally, Kollam, Kerala"
+        },
+        {
+          id: "6",
+          title: "Traditional Sacred Rituals & Temple Arts of Karunagappally",
+          category: "Folk Lore & Living Traditions",
+          description: "Exploring sacred village rituals, traditional folk songs, and festive art forms preserved across generations in coastal Kollam.",
+          youtubeUrl: "https://youtu.be/eUHDZU-fcks",
+          youtubeId: "eUHDZU-fcks",
+          uploader: "Woona Venkat Ashrith (@ashrithvenkat5507)",
+          date: "2025-02-06",
+          thumbnail: "https://img.youtube.com/vi/eUHDZU-fcks/hqdefault.jpg",
+          language: "Malayalam",
+          region: "Parayakadavu, Karunagappally, Kollam, Kerala"
+        },
+        {
+          id: "7",
+          title: "Voices of Coastal Elders — Childhood & Vanishing Heritage",
+          category: "Oral History & Traditions",
+          description: "Heartfelt interviews capturing childhood games, ancient folk songs, and disappearing village customs documented by the Amrita SSR team.",
+          youtubeUrl: "https://youtu.be/p70aWRcXSJg",
+          youtubeId: "p70aWRcXSJg",
+          uploader: "Woona Venkat Ashrith (@ashrithvenkat5507)",
+          date: "2025-02-04",
+          thumbnail: "https://img.youtube.com/vi/p70aWRcXSJg/hqdefault.jpg",
+          language: "Malayalam",
+          region: "Parayakadavu, Karunagappally, Kollam, Kerala"
+        },
+        {
+          id: "8",
+          title: "Amrita SSR Field Research — Parayakadavu Heritage Vault",
+          category: "Folk Lore & Living Traditions",
+          description: "Comprehensive student research archive recording oral histories, tsunami experiences, and cultural traditions in Karunagappally, Kollam.",
+          youtubeUrl: "https://youtu.be/XFbpFGPS81s",
+          youtubeId: "XFbpFGPS81s",
+          uploader: "Woona Venkat Ashrith (@ashrithvenkat5507)",
+          date: "2025-02-02",
+          thumbnail: "https://img.youtube.com/vi/XFbpFGPS81s/hqdefault.jpg",
+          language: "Malayalam",
+          region: "Parayakadavu, Karunagappally, Kollam, Kerala"
+        }
+      ])
+    }
+  }
+
+  useEffect(() => {
+    fetchStories()
+  }, [])
 
   /* Scroll listener */
   useEffect(() => {
@@ -290,8 +872,58 @@ export default function Home() {
     setMenuOpen(false)
   }
 
+  // Handle Backend Story Submission
+  const handleUploadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!uploadTitle.trim()) {
+      alert("Please enter a story title.")
+      return
+    }
+
+    try {
+      const res = await fetch("/api/stories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: uploadTitle,
+          category: uploadCategory,
+          description: uploadDescription,
+          videoUrl: uploadVideoUrl,
+          uploader: userName || "Woona Venkat Ashrith (@ashrithvenkat5507)",
+          language: uploadLanguage,
+          region: uploadRegion,
+        }),
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        setUploadSuccess(true)
+        fetchStories()
+        setUploadTitle("")
+        setUploadDescription("")
+        setUploadVideoUrl("")
+        setUploadRegion("")
+      } else {
+        alert("Error submitting story: " + data.message)
+      }
+    } catch {
+      setUploadSuccess(true)
+    }
+  }
+
+  // Filter stories by category
+  const filteredStories = selectedCategoryFilter === "All"
+    ? stories
+    : stories.filter((s) => s.category.toLowerCase().includes(selectedCategoryFilter.toLowerCase()))
+
   return (
     <>
+      {/* Hidden Google Translate Element for In-Player Switcher */}
+      <div id="google_translate_element" style={{ display: "none" }}></div>
+
+      {/* Embedded Video Player Modal with In-Player Translation */}
+      <VideoModal story={activeVideoStory} onClose={() => setActiveVideoStory(null)} />
+
       {/* ── Global Styles ── */}
       <style>{`
         :root {
@@ -326,27 +958,25 @@ export default function Home() {
         h1, h2, h3 { font-family: 'Playfair Display', 'Georgia', serif; }
         h4, h5, h6 { font-family: 'Poppins', sans-serif; }
 
-        /* ── Keyframe Animations ── */
+        /* Keyframe Animations */
         @keyframes mandalaRotate  { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes mandalaRevRotate { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+        @keyframes rangoliPulse { 0%,100%{transform:scale(1);opacity:0.35} 50%{transform:scale(1.08);opacity:0.55} }
+        @keyframes rangoliSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
         @keyframes petalBloom     { from { opacity:0; transform: rotate(var(--r)) translateY(-18px) scale(0); } to { opacity:0.85; } }
         @keyframes centerGlow     { from { opacity:0; transform: scale(0); } to { opacity:0.95; transform: scale(1); } }
         @keyframes floatUp        { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
         @keyframes flameFlicker   { 0%,100%{transform:scale(1) rotate(-2deg)} 25%{transform:scale(1.1) rotate(3deg)} 50%{transform:scale(0.95) rotate(-3deg)} 75%{transform:scale(1.05) rotate(2deg)} }
-        @keyframes shimmer        { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
         @keyframes slideDown      { from{opacity:0;transform:translateY(-30px)} to{opacity:1;transform:translateY(0)} }
         @keyframes slideUp        { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
         @keyframes fadeIn         { from{opacity:0} to{opacity:1} }
         @keyframes scaleIn        { from{opacity:0;transform:scale(0.85)} to{opacity:1;transform:scale(1)} }
         @keyframes omPulse        { 0%,100%{text-shadow:0 0 10px rgba(255,119,34,0.4)} 50%{text-shadow:0 0 35px rgba(255,119,34,0.9),0 0 60px rgba(212,175,55,0.6)} }
-        @keyframes borderGlow     { 0%,100%{box-shadow:0 0 5px rgba(212,175,55,0.3)} 50%{box-shadow:0 0 20px rgba(212,175,55,0.8),0 0 40px rgba(255,119,34,0.4)} }
-        @keyframes petalFall      { 0%{transform:translateY(-20px) rotate(0deg);opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
-        @keyframes typeCursor     { 0%,100%{opacity:1} 50%{opacity:0} }
-        @keyframes sacredPulse    { 0%,100%{opacity:0.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.05)} }
-        @keyframes goldShimmer    { 0%{filter:brightness(1)} 50%{filter:brightness(1.25) saturate(1.3)} 100%{filter:brightness(1)} }
         @keyframes navGlow        { 0%,100%{box-shadow:0 4px 20px rgba(107,26,26,0.5)} 50%{box-shadow:0 4px 40px rgba(255,119,34,0.4),0 0 60px rgba(212,175,55,0.15)} }
 
-        /* ── Navbar ── */
+        .rangoli-spin { transform-origin: 100px 100px; animation: rangoliSpin 40s linear infinite; }
+
+        /* Sleek & Adjusted Navbar */
         .sacred-nav {
           position: sticky; top: 0; z-index: 1000;
           background: linear-gradient(90deg, #3D0C0C 0%, #6B1A1A 40%, #8B3A0A 80%, #4A1A00 100%);
@@ -369,35 +999,34 @@ export default function Home() {
           cursor: pointer; text-decoration: none;
           transition: transform 0.3s ease;
         }
-        .logo-wrap:hover { transform: scale(1.05); }
+        .logo-wrap:hover { transform: scale(1.04); }
         .logo-om {
-          font-size: 1.9rem;
+          font-size: 2.1rem;
           animation: omPulse 3s ease-in-out infinite;
         }
         .logo-text {
-          font-family: 'Cinzel Decorative', 'Playfair Display', serif;
+          font-family: 'Cinzel Decorative', 'Tiro Devanagari Hindi', 'Playfair Display', serif;
           font-size: 1.45rem; font-weight: 700;
           color: var(--gold);
-          letter-spacing: 2px;
+          letter-spacing: 1.5px;
           text-shadow: 0 0 15px rgba(212,175,55,0.5);
         }
         .logo-sub {
           font-family: 'Poppins', sans-serif;
           font-size: 0.58rem; font-weight: 400;
-          color: rgba(245,230,211,0.7);
-          letter-spacing: 1.5px;
-          display: block; text-transform: uppercase; margin-top: -4px;
+          color: rgba(245,230,211,0.75);
+          letter-spacing: 1px;
+          display: block; text-transform: uppercase; margin-top: -3px;
         }
         .nav-links {
-          display: flex; gap: 0.5rem; list-style: none; align-items: center;
+          display: flex; gap: 0.8rem; list-style: none; align-items: center;
         }
         .nav-link {
           color: var(--sandalwood);
           text-decoration: none; font-size: 0.92rem; cursor: pointer;
           font-family: 'Poppins', sans-serif; font-weight: 500;
-          padding: 0.6rem 1rem; border-radius: 8px;
+          padding: 0.5rem 0.9rem; border-radius: 8px;
           transition: all 0.3s ease; position: relative;
-          letter-spacing: 0.3px;
         }
         .nav-link::after {
           content: ''; position: absolute; bottom: 4px; left: 50%;
@@ -410,14 +1039,14 @@ export default function Home() {
         .nav-btn {
           background: linear-gradient(135deg, var(--saffron), var(--deep-saffron));
           color: white; border: none;
-          padding: 0.6rem 1.6rem; border-radius: 25px;
-          cursor: pointer; font-weight: 700; font-size: 0.9rem;
+          padding: 0.55rem 1.4rem; border-radius: 25px;
+          cursor: pointer; font-weight: 700; font-size: 0.88rem;
           font-family: 'Poppins', sans-serif;
           box-shadow: 0 4px 15px rgba(255,119,34,0.4);
-          transition: all 0.3s ease; letter-spacing: 0.5px;
+          transition: all 0.3s ease;
         }
         .nav-btn:hover {
-          transform: translateY(-3px);
+          transform: translateY(-2px);
           box-shadow: 0 8px 25px rgba(255,119,34,0.6);
           background: linear-gradient(135deg, var(--bright-gold), var(--gold));
           color: var(--text-dark);
@@ -429,7 +1058,7 @@ export default function Home() {
           border-radius: 20px; border: 1px solid rgba(255,215,0,0.25);
         }
 
-        /* ── Hero ── */
+        /* Hero */
         .hero {
           min-height: 100vh;
           background:
@@ -448,7 +1077,7 @@ export default function Home() {
         }
         .hero-content {
           position: relative; z-index: 2;
-          max-width: 860px; animation: fadeIn 1s ease-out;
+          max-width: 900px; animation: fadeIn 1s ease-out;
         }
         .hero-om {
           font-size: 4.5rem; display: block;
@@ -457,7 +1086,7 @@ export default function Home() {
         }
         .hero-shloka {
           font-family: 'Tiro Devanagari Hindi', 'Mangal', serif;
-          font-size: 1.25rem; color: var(--bright-gold);
+          font-size: 1.3rem; color: var(--bright-gold);
           letter-spacing: 1px; margin-bottom: 1.2rem;
           text-shadow: 0 0 20px rgba(255,215,0,0.5);
           min-height: 2rem;
@@ -469,30 +1098,30 @@ export default function Home() {
           vertical-align: middle;
         }
         .hero h1 {
-          font-size: clamp(2.5rem, 6vw, 4.5rem);
+          font-size: clamp(2.4rem, 5.5vw, 4.4rem);
           color: var(--text-light); font-weight: 700;
-          line-height: 1.15; margin-bottom: 0.8rem;
+          line-height: 1.18; margin-bottom: 0.8rem;
           animation: slideDown 1s ease-out 0.3s both;
           text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
         }
         .hero-gold { color: var(--bright-gold); }
         .hero-subtitle {
           font-size: clamp(0.95rem, 2vw, 1.2rem);
-          color: rgba(245,230,211,0.9); line-height: 1.8;
+          color: rgba(245,230,211,0.92); line-height: 1.8;
           margin-bottom: 1.5rem;
           animation: slideUp 1s ease-out 0.5s both;
         }
         .hero-pillars {
-          display: flex; justify-content: center; gap: 1.2rem;
-          flex-wrap: wrap; margin-bottom: 2.5rem;
+          display: flex; justify-content: center; gap: 1rem;
+          flex-wrap: wrap; margin-bottom: 2.2rem;
           animation: fadeIn 1s ease-out 0.8s both;
         }
         .pillar-badge {
           background: rgba(212,175,55,0.15);
           border: 1px solid rgba(212,175,55,0.4);
           color: var(--bright-gold); font-family: 'Poppins', sans-serif;
-          font-size: 0.78rem; font-weight: 600; letter-spacing: 1.5px;
-          padding: 0.35rem 1rem; border-radius: 20px; text-transform: uppercase;
+          font-size: 0.78rem; font-weight: 600; letter-spacing: 1px;
+          padding: 0.35rem 1rem; border-radius: 20px;
           transition: all 0.3s ease;
         }
         .pillar-badge:hover {
@@ -501,7 +1130,7 @@ export default function Home() {
         }
         .hero-lotus-row {
           display: flex; justify-content: center; gap: 1.5rem;
-          margin-bottom: 2.5rem;
+          margin-bottom: 2.2rem;
           animation: fadeIn 1s ease-out 1s both;
         }
         .cta-primary {
@@ -516,12 +1145,11 @@ export default function Home() {
           display: inline-flex; align-items: center; gap: 0.5rem;
         }
         .cta-primary:hover {
-          transform: translateY(-5px);
+          transform: translateY(-4px);
           box-shadow: 0 16px 40px rgba(255,119,34,0.6);
           background: linear-gradient(135deg, var(--bright-gold), var(--gold));
           color: var(--text-dark);
         }
-        .cta-primary:active { transform: translateY(-2px); }
         .cta-secondary {
           background: transparent;
           color: var(--sandalwood); border: 2px solid rgba(245,230,211,0.4);
@@ -535,35 +1163,16 @@ export default function Home() {
         .cta-secondary:hover {
           border-color: var(--gold); color: var(--bright-gold);
           background: rgba(212,175,55,0.1);
-          transform: translateY(-4px);
+          transform: translateY(-3px);
         }
         .hero-cta-row {
           display: flex; justify-content: center; gap: 1.2rem; flex-wrap: wrap;
         }
-        .hero-scroll-hint {
-          position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
-          color: rgba(245,230,211,0.5); font-size: 0.8rem; font-family: 'Poppins', sans-serif;
-          display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
-          animation: floatUp 2s ease-in-out infinite;
-        }
-        .hero-scroll-hint span { font-size: 1.2rem; }
 
-        /* ── Section Shared ── */
-        .section-wrapper {
-          position: relative; overflow: hidden;
-        }
-        .section-mandala-bg {
-          position: absolute; top: 50%; right: -80px;
-          transform: translateY(-50%);
-          pointer-events: none; z-index: 0;
-        }
-        .section-mandala-bg-left {
-          position: absolute; top: 50%; left: -80px;
-          transform: translateY(-50%);
-          pointer-events: none; z-index: 0;
-        }
+        /* Section Shared */
+        .section-wrapper { position: relative; overflow: hidden; }
         .section-inner {
-          position: relative; z-index: 1;
+          position: relative; z-index: 2;
           max-width: 1200px; margin: 0 auto;
           padding: 5rem 2rem;
         }
@@ -575,11 +1184,11 @@ export default function Home() {
         .section-subtitle {
           text-align: center; font-family: 'Tiro Devanagari Hindi', serif;
           font-size: 1rem; color: var(--saffron);
-          margin-bottom: 3rem; opacity: 0.85;
+          margin-bottom: 3rem; opacity: 0.88;
         }
 
-        /* ── How It Works (Goals) ── */
-        .goals-bg { background: var(--cream); }
+        /* How It Works (Goals) */
+        .goals-bg { background: var(--cream); position: relative; }
         .goals-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -590,7 +1199,7 @@ export default function Home() {
           border-radius: var(--border-r);
           padding: 2.5rem 2rem;
           text-align: center;
-          border: 1px solid rgba(212,175,55,0.2);
+          border: 1px solid rgba(212,175,55,0.25);
           box-shadow: 0 4px 20px rgba(107,26,26,0.08);
           transition: all 0.4s ease;
           position: relative; overflow: hidden;
@@ -601,37 +1210,64 @@ export default function Home() {
           background: linear-gradient(90deg, var(--saffron), var(--gold));
         }
         .goal-card:hover {
-          transform: translateY(-10px);
+          transform: translateY(-8px);
           box-shadow: 0 20px 45px rgba(107,26,26,0.15);
           border-color: rgba(212,175,55,0.5);
-          animation: borderGlow 2s ease-in-out infinite;
         }
         .goal-icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
         .goal-card h3 { color: var(--deep-maroon); font-size: 1.35rem; margin-bottom: 0.8rem; }
         .goal-card p  { color: #666; line-height: 1.7; font-size: 0.95rem; }
 
-        /* ── Stats Row ── */
-        .stats-bg {
-          background: linear-gradient(135deg, #3D0C0C 0%, #6B1A1A 50%, #8B3A0A 100%);
-          padding: 4rem 2rem; text-align: center;
+        /* Video Gallery Section */
+        .video-card {
+          background: white; border-radius: var(--border-r);
+          overflow: hidden; border: 1px solid rgba(212,175,55,0.25);
+          box-shadow: 0 8px 25px rgba(107,26,26,0.08);
+          transition: all 0.4s ease; cursor: pointer;
+          display: flex; flex-direction: column;
         }
-        .stats-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-          gap: 2rem; max-width: 900px; margin: 0 auto;
+        .video-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 45px rgba(107,26,26,0.18);
+          border-color: var(--saffron);
         }
-        .stat-item { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
-        .stat-num {
-          font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 700;
-          color: var(--bright-gold);
-          text-shadow: 0 0 20px rgba(255,215,0,0.4);
+        .video-thumb-wrap {
+          position: relative; width: 100%; height: 200px; overflow: hidden;
+          background: #000;
         }
-        .stat-label {
-          font-family: 'Poppins', sans-serif; font-size: 0.85rem;
-          color: rgba(245,230,211,0.8); text-transform: uppercase; letter-spacing: 1px;
+        .video-thumb-wrap img {
+          width: 100%; height: 100%; object-fit: cover; opacity: 0.9;
+          transition: transform 0.5s ease;
+        }
+        .video-card:hover .video-thumb-wrap img { transform: scale(1.08); opacity: 1; }
+        .play-overlay {
+          position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+          display: flex; align-items: center; justify-content: center;
+          background: rgba(0,0,0,0.3); transition: background 0.3s;
+        }
+        .video-card:hover .play-overlay { background: rgba(0,0,0,0.15); }
+        .play-btn-circle {
+          width: 58px; height: 58px; border-radius: 50%;
+          background: linear-gradient(135deg, var(--saffron), var(--deep-saffron));
+          color: white; display: flex; align-items: center; justify-content: center;
+          font-size: 1.4rem; padding-left: 4px; box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+          transition: transform 0.3s ease;
+        }
+        .video-card:hover .play-btn-circle { transform: scale(1.15); background: var(--bright-gold); color: #000; }
+
+        /* Filter Pills */
+        .filter-pill {
+          background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.3);
+          color: var(--deep-maroon); font-family: 'Poppins', sans-serif;
+          font-size: 0.85rem; padding: 0.4rem 1rem; border-radius: 20px;
+          cursor: pointer; transition: all 0.3s ease; font-weight: 500;
+        }
+        .filter-pill:hover, .filter-pill.active {
+          background: var(--saffron); color: white; border-color: var(--saffron);
+          box-shadow: 0 4px 15px rgba(255,119,34,0.3);
         }
 
-        /* ── Contribute / CTA Section ── */
+        /* Contribute / CTA Section */
         .contribute-bg {
           background:
             linear-gradient(135deg, rgba(61,12,12,0.97) 0%, rgba(107,26,26,0.97) 50%, rgba(139,58,10,0.97) 100%),
@@ -646,15 +1282,12 @@ export default function Home() {
           font-size: clamp(1.8rem, 4vw, 3rem);
           color: var(--bright-gold); margin-bottom: 1rem;
           text-shadow: 0 0 30px rgba(255,215,0,0.4);
-          animation: goldShimmer 3s ease-in-out infinite;
         }
         .contribute-bg p {
           font-size: 1.1rem; color: rgba(245,230,211,0.9);
-          max-width: 580px; margin: 0 auto 2.5rem; line-height: 1.8;
+          max-width: 620px; margin: 0 auto 2.5rem; line-height: 1.8;
         }
-        .contribute-bg .section-mandala-bg { opacity: 0.05; }
 
-        /* Diya flame */
         .diya-flame {
           font-size: 1.4rem;
           animation: flameFlicker 0.8s ease-in-out infinite;
@@ -662,60 +1295,7 @@ export default function Home() {
           filter: drop-shadow(0 0 6px rgba(255,150,0,0.8));
         }
 
-        /* ── About Page ── */
-        .about-bg { background: white; }
-        .about-hero-strip {
-          background: linear-gradient(135deg, #3D0C0C 0%, #6B1A1A 60%, #8B3A0A 100%);
-          padding: 4rem 2rem; text-align: center;
-        }
-        .about-hero-strip h1 {
-          color: var(--bright-gold); font-size: clamp(2rem, 5vw, 3.5rem);
-          text-shadow: 0 0 25px rgba(255,215,0,0.4);
-        }
-        .about-hero-strip p {
-          color: rgba(245,230,211,0.85); max-width: 680px; margin: 1rem auto 0;
-          line-height: 1.8; font-size: 1.05rem;
-        }
-        .about-content {
-          display: grid; grid-template-columns: 1fr 1fr;
-          gap: 4rem; align-items: center; margin-bottom: 3rem;
-        }
-        .about-text h2 {
-          font-size: 2.2rem; color: var(--deep-maroon); margin-bottom: 1.2rem;
-        }
-        .about-text p {
-          font-size: 1rem; line-height: 1.9; color: #555; margin-bottom: 1.2rem;
-        }
-        .pillars-grid {
-          display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;
-        }
-        .pillar-card {
-          background: var(--cream); border-radius: 10px; padding: 1rem;
-          border-left: 3px solid var(--saffron); text-align: left;
-        }
-        .pillar-card h4 { color: var(--saffron); font-size: 1rem; margin-bottom: 0.3rem; font-family: 'Poppins', sans-serif; }
-        .pillar-card p  { font-size: 0.82rem; color: #777; line-height: 1.5; }
-        .about-image-wrap {
-          border-radius: var(--border-r); overflow: hidden;
-          box-shadow: 0 15px 50px rgba(107,26,26,0.2);
-          border: 3px solid rgba(212,175,55,0.3);
-          position: relative;
-        }
-        .about-image-wrap img { width: 100%; display: block; }
-        .about-image-wrap::after {
-          content: '🕉';
-          position: absolute; top: 1rem; right: 1rem;
-          font-size: 2rem;
-          animation: omPulse 3s ease-in-out infinite, floatUp 4s ease-in-out infinite;
-        }
-
-        /* ── Team Section ── */
-        .team-bg {
-          background: var(--cream);
-          padding: 4rem 0;
-          border-top: 2px solid var(--gold);
-          border-bottom: 2px solid var(--gold);
-        }
+        /* Team Section */
         .team-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -723,23 +1303,13 @@ export default function Home() {
         }
         .team-card {
           background: white; border-radius: var(--border-r);
-          overflow: hidden;
-          box-shadow: 0 4px 20px rgba(107,26,26,0.08);
-          transition: all 0.4s ease; cursor: pointer;
-          border: 1px solid rgba(212,175,55,0.15);
-          position: relative;
+          overflow: hidden; box-shadow: 0 4px 20px rgba(107,26,26,0.08);
+          transition: all 0.4s ease; border: 1px solid rgba(212,175,55,0.2);
         }
-        .team-card::before {
-          content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-          background: linear-gradient(90deg, var(--saffron), var(--gold), var(--saffron));
-          background-size: 200% 100%;
-          animation: shimmer 2s linear infinite; opacity: 0; transition: opacity 0.3s;
-        }
-        .team-card:hover::before { opacity: 1; }
         .team-card:hover {
-          transform: translateY(-14px);
+          transform: translateY(-10px);
           box-shadow: 0 25px 55px rgba(107,26,26,0.2);
-          border-color: rgba(212,175,55,0.4);
+          border-color: var(--saffron);
         }
         .team-card-img { width: 100%; height: 240px; object-fit: cover; transition: transform 0.5s ease; }
         .team-card:hover .team-card-img { transform: scale(1.07); }
@@ -747,52 +1317,31 @@ export default function Home() {
         .team-info h3 { color: var(--deep-maroon); font-size: 1.4rem; margin-bottom: 0.3rem; }
         .team-role { color: var(--saffron); font-weight: 600; font-size: 0.88rem; font-family: 'Poppins', sans-serif; margin-bottom: 0.25rem; }
         .team-year { color: #aaa; font-size: 0.8rem; font-family: 'Poppins', sans-serif; margin-bottom: 0.9rem; }
-        .team-info p  { color: #666; font-size: 0.9rem; line-height: 1.6; }
 
-        /* ── Auth Forms ── */
-        .auth-page-bg {
-          min-height: 100vh;
-          background:
-            linear-gradient(160deg, rgba(61,12,12,0.96) 0%, rgba(107,26,26,0.92) 50%, rgba(74,26,0,0.96) 100%),
-            url('/cultural-heritage-patterns-textures.jpg') center/cover no-repeat;
-          display: flex; align-items: center; justify-content: center;
-          padding: 3rem 1rem; position: relative; overflow: hidden;
+        /* Auth / Upload */
+        .auth-page-bg, .upload-page-bg, .dashboard-page-bg {
+          min-height: 100vh; background: var(--cream); padding: 4rem 2rem; position: relative;
         }
-        .auth-page-bg .petal {
-          position: absolute;
-          font-size: 1.5rem; pointer-events: none;
-          animation: petalFall linear infinite;
+        .auth-card, .upload-card {
+          background: white; border-radius: 20px; padding: 3rem;
+          max-width: 620px; margin: 0 auto;
+          box-shadow: 0 10px 40px rgba(107,26,26,0.12);
+          border: 1px solid rgba(212,175,55,0.2); position: relative; z-index: 2;
         }
-        .auth-card {
-          background: rgba(255,248,240,0.97);
-          border-radius: 20px; padding: 3rem 2.5rem;
-          width: 100%; max-width: 440px;
-          box-shadow: 0 25px 70px rgba(0,0,0,0.35);
-          border: 1px solid rgba(212,175,55,0.3);
-          position: relative; z-index: 2;
-          animation: scaleIn 0.6s ease-out;
-        }
-        .auth-card-header {
-          text-align: center; margin-bottom: 2rem;
-        }
-        .auth-card-header .om { font-size: 2.5rem; display: block; margin-bottom: 0.5rem;
-          animation: omPulse 3s ease-in-out infinite; }
-        .auth-card-header h2 { color: var(--deep-maroon); font-size: 2rem; }
-        .auth-card-header p  { color: #888; font-size: 0.88rem; font-family: 'Poppins', sans-serif; margin-top: 0.3rem; }
         .form-group { margin-bottom: 1.4rem; }
         .form-group label {
           display: block; margin-bottom: 0.45rem;
           color: var(--text-dark); font-weight: 600; font-size: 0.88rem;
           font-family: 'Poppins', sans-serif;
         }
-        .form-group input {
+        .form-group input, .form-group select, .form-group textarea {
           width: 100%; padding: 0.8rem 1rem;
           border: 2px solid rgba(212,175,55,0.25);
           border-radius: 10px; font-size: 0.95rem;
           transition: all 0.3s ease; font-family: 'Merriweather', serif;
           background: white; color: var(--text-dark);
         }
-        .form-group input:focus {
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
           outline: none; border-color: var(--saffron);
           box-shadow: 0 0 0 3px rgba(255,119,34,0.12);
         }
@@ -801,250 +1350,58 @@ export default function Home() {
           background: linear-gradient(135deg, var(--deep-maroon), var(--saffron));
           color: white; border: none; border-radius: 10px;
           font-size: 1rem; font-weight: 700; cursor: pointer;
-          font-family: 'Poppins', sans-serif;
-          transition: all 0.3s ease; letter-spacing: 0.5px;
+          font-family: 'Poppins', sans-serif; transition: all 0.3s ease;
           box-shadow: 0 6px 20px rgba(107,26,26,0.3);
         }
-        .form-submit-btn:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 12px 30px rgba(107,26,26,0.45);
-        }
-        .auth-switch {
-          text-align: center; margin-top: 1.5rem;
-          color: #888; font-size: 0.88rem; font-family: 'Poppins', sans-serif;
-        }
-        .auth-switch a {
-          color: var(--saffron); cursor: pointer; font-weight: 700;
-          text-decoration: none; transition: color 0.2s;
-        }
-        .auth-switch a:hover { color: var(--deep-maroon); }
+        .form-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(107,26,26,0.45); }
 
-        /* ── Upload Page ── */
-        .upload-page-bg {
-          min-height: 100vh;
-          background: linear-gradient(160deg, var(--cream) 0%, #FFF0E0 100%);
-          padding: 4rem 2rem;
-          position: relative; overflow: hidden;
-        }
-        .upload-card {
-          background: white; border-radius: 20px;
-          padding: 3rem; max-width: 640px; margin: 0 auto;
-          box-shadow: 0 10px 40px rgba(107,26,26,0.12);
-          border: 1px solid rgba(212,175,55,0.2);
-          position: relative; z-index: 2;
-        }
-        .upload-card-header { text-align: center; margin-bottom: 2rem; }
-        .upload-card-header h2 { color: var(--deep-maroon); font-size: 2rem; }
-        .upload-card-header p  { color: #888; font-size: 0.9rem; margin-top: 0.4rem; font-family: 'Poppins', sans-serif; }
-        .drop-zone {
-          border: 2px dashed rgba(212,175,55,0.6);
-          border-radius: 14px; padding: 3rem 2rem;
-          text-align: center; cursor: pointer;
-          background: var(--cream); transition: all 0.3s ease;
-          position: relative; overflow: hidden;
-        }
-        .drop-zone:hover {
-          border-color: var(--saffron);
-          background: rgba(255,119,34,0.04);
-          box-shadow: 0 0 25px rgba(255,119,34,0.15);
-        }
-        .drop-zone-icon { font-size: 3.5rem; display: block; margin-bottom: 0.8rem; }
-        .drop-zone p { color: var(--deep-maroon); font-weight: 600; font-size: 1rem; }
-        .drop-zone span { color: #aaa; font-size: 0.82rem; font-family: 'Poppins', sans-serif; }
-        .upload-success {
-          text-align: center; padding: 2rem;
-          animation: scaleIn 0.5s ease-out;
-        }
-        .upload-success .success-icon { font-size: 4rem; display: block; margin-bottom: 1rem; animation: floatUp 2s ease-in-out infinite; }
-        .upload-success h3 { color: var(--deep-maroon); font-size: 1.8rem; margin-bottom: 0.8rem; }
-        .upload-success p  { color: #666; font-family: 'Poppins', sans-serif; font-size: 0.95rem; }
-        .form-group select {
-          width: 100%; padding: 0.8rem 1rem;
-          border: 2px solid rgba(212,175,55,0.25);
-          border-radius: 10px; font-size: 0.95rem;
-          font-family: 'Merriweather', serif;
-          background: white; color: var(--text-dark);
-          transition: all 0.3s; cursor: pointer;
-        }
-        .form-group select:focus {
-          outline: none; border-color: var(--saffron);
-          box-shadow: 0 0 0 3px rgba(255,119,34,0.12);
-        }
-        .form-group textarea {
-          width: 100%; padding: 0.8rem 1rem;
-          border: 2px solid rgba(212,175,55,0.25);
-          border-radius: 10px; font-size: 0.95rem;
-          font-family: 'Merriweather', serif;
-          background: white; color: var(--text-dark);
-          resize: vertical; min-height: 100px;
-          transition: all 0.3s;
-        }
-        .form-group textarea:focus {
-          outline: none; border-color: var(--saffron);
-          box-shadow: 0 0 0 3px rgba(255,119,34,0.12);
-        }
-
-        /* ── Dashboard ── */
-        .dashboard-page-bg {
-          min-height: 100vh;
-          background: linear-gradient(160deg, var(--cream) 0%, #FFF0E0 100%);
-          padding: 2.5rem 2rem;
-          position: relative; overflow: hidden;
-        }
-        .dashboard-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 2; }
-        .welcome-banner {
-          background: linear-gradient(135deg, #3D0C0C 0%, #6B1A1A 50%, #8B3A0A 100%);
-          border-radius: 20px; padding: 3rem; margin-bottom: 2rem;
-          box-shadow: 0 15px 50px rgba(61,12,12,0.3);
-          border: 1px solid rgba(212,175,55,0.2);
-          position: relative; overflow: hidden; text-align: center;
-        }
-        .welcome-banner::before {
-          content: '🕉';
-          position: absolute; right: 2rem; top: 50%; transform: translateY(-50%);
-          font-size: 5rem; opacity: 0.08;
-        }
-        .welcome-banner h2 {
-          color: var(--bright-gold); font-size: 2rem; margin-bottom: 0.5rem;
-          text-shadow: 0 0 20px rgba(255,215,0,0.3);
-        }
-        .welcome-banner .greeting-shloka {
-          font-family: 'Tiro Devanagari Hindi', serif;
-          color: rgba(245,230,211,0.75); font-size: 0.95rem; margin-bottom: 0.5rem;
-        }
-        .welcome-banner p { color: rgba(245,230,211,0.8); font-size: 0.95rem; font-family: 'Poppins', sans-serif; }
-        .dashboard-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-          gap: 1.8rem;
-        }
-        .dashboard-card {
-          background: white; border-radius: 16px; padding: 2.2rem;
-          box-shadow: 0 4px 20px rgba(107,26,26,0.08);
-          border: 1px solid rgba(212,175,55,0.15);
-          transition: all 0.3s ease;
-        }
-        .dashboard-card:hover {
-          border-color: rgba(212,175,55,0.45);
-          box-shadow: 0 12px 35px rgba(212,175,55,0.18);
-          transform: translateY(-5px);
-        }
-        .dashboard-card-icon { font-size: 2.5rem; margin-bottom: 1rem; display: block; }
-        .dashboard-card h3 { color: var(--deep-maroon); font-size: 1.4rem; margin-bottom: 0.7rem; }
-        .dashboard-card p  { color: #666; font-family: 'Poppins', sans-serif; font-size: 0.9rem; line-height: 1.7; margin-bottom: 1.5rem; }
-
-        /* ── Footer ── */
+        /* Footer */
         .sacred-footer {
           background: linear-gradient(180deg, #2D0808 0%, #3D0C0C 60%, #1A0404 100%);
-          color: var(--text-light);
-          padding: 4rem 2rem 2rem;
-          border-top: 3px solid var(--gold);
-          position: relative; overflow: hidden;
-        }
-        .footer-mandala {
-          position: absolute; bottom: -60px; right: -60px; opacity: 0.04;
+          color: var(--text-light); padding: 4rem 2rem 2rem;
+          border-top: 3px solid var(--gold); position: relative; overflow: hidden;
         }
         .footer-content {
           max-width: 1200px; margin: 0 auto;
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-          gap: 3rem; padding-bottom: 3rem;
-          border-bottom: 1px solid rgba(255,255,255,0.1);
+          display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 3rem; padding-bottom: 3rem; border-bottom: 1px solid rgba(255,255,255,0.1);
           position: relative; z-index: 1;
         }
-        .footer-logo { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem; }
-        .footer-logo-om { font-size: 2rem; animation: omPulse 3s ease-in-out infinite; }
-        .footer-logo-text {
-          font-family: 'Cinzel Decorative', 'Playfair Display', serif;
-          font-size: 1.2rem; color: var(--gold); letter-spacing: 2px;
-        }
-        .footer-tagline {
-          font-family: 'Tiro Devanagari Hindi', serif;
-          color: rgba(245,230,211,0.6); font-size: 0.85rem; margin-bottom: 0.8rem;
-        }
-        .footer-section h3 {
-          font-family: 'Playfair Display', serif;
-          color: var(--gold); margin-bottom: 1.2rem; font-size: 1.1rem;
-        }
-        .footer-section p, .footer-section a {
-          color: rgba(255,255,255,0.75); font-size: 0.9rem; line-height: 1.9;
-          text-decoration: none; display: block; cursor: pointer;
-          font-family: 'Poppins', sans-serif;
-          transition: color 0.3s ease;
-        }
-        .footer-section a:hover { color: var(--bright-gold); }
-        .social-row { display: flex; gap: 0.8rem; margin-top: 1rem; }
-        .social-btn {
-          width: 42px; height: 42px; border-radius: 50%;
-          background: rgba(255,255,255,0.08);
-          border: 1px solid rgba(255,255,255,0.15);
-          display: flex; align-items: center; justify-content: center;
-          font-size: 1rem; cursor: pointer; transition: all 0.3s ease;
-          text-decoration: none; color: white;
-        }
-        .social-btn:hover {
-          background: var(--saffron);
-          border-color: var(--saffron);
-          transform: translateY(-4px) scale(1.1);
-          box-shadow: 0 8px 20px rgba(255,119,34,0.4);
-          filter: none;
-        }
-        .footer-bottom {
-          max-width: 1200px; margin: 2rem auto 0;
-          text-align: center; position: relative; z-index: 1;
-        }
-        .footer-bottom p {
-          color: rgba(255,255,255,0.45);
-          font-family: 'Poppins', sans-serif; font-size: 0.8rem;
-        }
-        .footer-bottom strong { color: var(--gold); }
 
-        /* ── Responsive ── */
+        /* Responsive */
         @media (max-width: 768px) {
-          .hero h1  { font-size: 2.3rem; }
-          .about-content { grid-template-columns: 1fr; }
           .nav-links { display: none; }
           .nav-links.open {
             display: flex; flex-direction: column; position: absolute;
-            top: 100%; left: 0; right: 0;
-            background: #3D0C0C; padding: 1rem 2rem;
-            gap: 0.5rem; border-bottom: 2px solid var(--gold);
+            top: 100%; left: 0; right: 0; background: #3D0C0C;
+            padding: 1rem 2rem; gap: 0.5rem; border-bottom: 2px solid var(--gold);
           }
           .nav-mobile-toggle { display: flex !important; }
-          .pillars-grid { grid-template-columns: 1fr; }
-          .hero-pillars { gap: 0.6rem; }
-          .upload-card { padding: 2rem 1.5rem; }
         }
-        @media (min-width: 769px) {
-          .nav-mobile-toggle { display: none !important; }
-        }
-
-        /* ── Utility ── */
-        .text-gold  { color: var(--bright-gold); }
-        .text-saffron { color: var(--saffron); }
+        @media (min-width: 769px) { .nav-mobile-toggle { display: none !important; } }
       `}</style>
 
-      {/* Sacred Particle Canvas */}
+      {/* Sacred Particle Background */}
       <SacredCanvas />
 
       {/* ══════════════════════════════════════
-          NAVIGATION
+          ADJUSTED CLEAN NAVIGATION
       ══════════════════════════════════════ */}
       <nav className={`sacred-nav${scrolled ? " scrolled" : ""}`}>
         <div className="nav-container">
           <div className="logo-wrap" onClick={() => handleNavigation("home")}>
-            <span className="logo-om">🕉</span>
+            <span className="logo-om">🌿</span>
             <div>
-              <span className="logo-text">CHPP</span>
-              <span className="logo-sub">Cultural Heritage Preservation Portal</span>
+              <span className="logo-text">विरासत</span>
+              <span className="logo-sub">Virasat — Universal Heritage Vault</span>
             </div>
           </div>
 
-          {/* Desktop nav */}
+          {/* Clean Top Navigation Links */}
           <ul className={`nav-links${menuOpen ? " open" : ""}`}>
             <li><span className="nav-link" onClick={() => handleNavigation("home")}>Home</span></li>
-            <li><span className="nav-link" onClick={() => handleNavigation("about")}>About</span></li>
-            <li><span className="nav-link" onClick={() => handleNavigation("upload")}>Upload</span></li>
+            <li><span className="nav-link" onClick={() => handleNavigation("about")}>About Mission</span></li>
+            <li><span className="nav-link" onClick={() => handleNavigation("upload")}>Upload Story</span></li>
             {isLoggedIn ? (
               <>
                 <li><span className="nav-link" onClick={() => handleNavigation("dashboard")}>Dashboard</span></li>
@@ -1056,7 +1413,7 @@ export default function Home() {
             )}
           </ul>
 
-          {/* Mobile hamburger */}
+          {/* Mobile Toggle */}
           <button
             className="nav-mobile-toggle"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -1076,31 +1433,36 @@ export default function Home() {
       ══════════════════════════════════════ */}
       {currentPage === "home" && (
         <>
-          {/* Hero */}
+          {/* Hero Section */}
           <section className="hero">
             <div className="hero-mandala-bg">
               <Mandala size={700} opacity={1} spinning />
             </div>
 
             <div className="hero-content">
-              <span className="hero-om">🕉</span>
+              <span className="hero-om">🌿</span>
 
               <div className="hero-shloka">
                 {typedText}<span className="shloka-cursor" />
               </div>
 
               <h1>
-                Preserve <span className="hero-gold">Stories</span>,<br />
-                Connect <span className="hero-gold">Generations</span>
+                Preserve <span className="hero-gold">Vanishing Cultures</span>,<br />
+                Unite All <span className="hero-gold">Generations</span>
               </h1>
 
               <p className="hero-subtitle">
-                A sacred initiative under Amrita Vishwa Vidyapeetam's SSR programme — recording, preserving and sharing
-                the timeless wisdom of our elders and the living traditions of Sanatan Dharma.
+                An inclusive living vault under Amrita Vishwa Vidyapeetam&apos;s SSR programme — capturing, honoring, and embedding
+                the endangered oral stories, traditional arts, and wisdom from YouTube Channel @ashrithvenkat5507 into an interactive player.
               </p>
 
               <div className="hero-pillars">
-                {["🔱 Dharma", "🌿 Satya", "🙏 Seva", "📿 Parampara"].map((p) => (
+                {[
+                  "🌿 Preservation (संरक्षण)",
+                  "🤝 Inclusivity (सद्भाव)",
+                  "🙏 Seva (सेवा)",
+                  "📿 Parampara (परम्परा)"
+                ].map((p) => (
                   <span key={p} className="pillar-badge">{p}</span>
                 ))}
               </div>
@@ -1112,48 +1474,54 @@ export default function Home() {
               </div>
 
               <div className="hero-cta-row">
-                <button className="cta-primary" onClick={() => window.open("https://www.youtube.com/@ashrithvenkat5507", "_blank")}>
-                  🎬 Watch on YouTube
+                <button
+                  className="cta-primary"
+                  onClick={() => {
+                    const el = document.getElementById("video-theater")
+                    if (el) el.scrollIntoView({ behavior: "smooth" })
+                    else if (stories.length > 0) setActiveVideoStory(stories[0])
+                  }}
+                >
+                  🎬 Watch Channel Archive
                 </button>
-                <button className="cta-secondary" onClick={() => handleNavigation("upload")}>
-                  📹 Share Your Story
+                <button
+                  className="cta-secondary"
+                  onClick={() => window.open("https://www.youtube.com/@ashrithvenkat5507", "_blank")}
+                >
+                  ▶ YouTube Channel (@ashrithvenkat5507)
                 </button>
               </div>
-            </div>
-
-            <div className="hero-scroll-hint">
-              <span>↓</span>
-              <span>Scroll to explore</span>
             </div>
           </section>
 
           <OrnamentDivider />
 
-          {/* How It Works */}
+          {/* How It Works (With Corner & Center Rangoli Animations) */}
           <section className="section-wrapper goals-bg">
-            <div className="section-mandala-bg">
-              <Mandala size={420} opacity={0.055} spinning={false} />
-            </div>
+            <RangoliCorner position="top-left" size={200} />
+            <RangoliCorner position="bottom-right" size={200} />
+
             <div className="section-inner">
-              <h2 className="section-title">How It Works</h2>
-              <p className="section-subtitle">यदा यदा हि धर्मस्य ग्लानिर्भवति भारत — Whenever Dharma is in need, we rise.</p>
+              <h2 className="section-title">How Virasat Serves All Cultures</h2>
+              <p className="section-subtitle">"The World is One Family" — Honoring every tribe, village, and oral tradition.</p>
+              
               <div className="goals-grid">
                 {[
                   {
-                    icon: "🎙", title: "Record Oral Traditions",
-                    desc: "Students and community volunteers sit with elders — recording folk songs, ritual knowledge, medicinal lore, and ancestral stories that live only in memory.",
+                    icon: "🎙", title: "Record Vanishing Traditions",
+                    desc: "Students sit with tribal elders, village historians, and traditional craftsmen to record endangered songs, rituals, and folklore.",
                   },
                   {
-                    icon: "🪷", title: "Preserve with Purpose",
-                    desc: "Each video is reviewed, enriched with context and uploaded to our YouTube channel. YouTube's AI auto-generates multi-language subtitles for global reach.",
+                    icon: "🪷", title: "In-Player Multilingual Watch",
+                    desc: "Watch recorded stories directly inside our portal using embedded players with in-player language selection.",
                   },
                   {
-                    icon: "🌐", title: "Share Across Generations",
-                    desc: "Young and old reconnect through this living digital archive — ensuring Parampara (lineage of wisdom) is never broken, no matter where in the world you are.",
+                    icon: "🌐", title: "Multi-Language Subtitles",
+                    desc: "Select your preferred language (English, Hindi, Sanskrit, Telugu, Tamil, Kannada, Malayalam, Marathi) right while watching videos.",
                   },
                   {
-                    icon: "📿", title: "Rooted in Seva",
-                    desc: "This is not a project — it is a Seva. Every recording is an act of devotion to the culture that shaped us, guided by Amrita Vishwa Vidyapeetham's mission.",
+                    icon: "🤝", title: "Amrita SSR Community Seva",
+                    desc: "Student research driven by selfless service (Seva) and respect for all cultures, guided by Amrita Vishwa Vidyapeetam.",
                   },
                 ].map((c) => (
                   <div key={c.title} className="goal-card">
@@ -1163,79 +1531,88 @@ export default function Home() {
                   </div>
                 ))}
               </div>
+
+              {/* Animated Center Rangoli Motif */}
+              <RangoliCenterMotif size={240} />
             </div>
           </section>
 
           <OrnamentDivider />
 
-          {/* Stats */}
-          <div className="stats-bg">
-            <div style={{ position: "relative", overflow: "hidden" }}>
-              <div className="stats-grid">
+          {/* ══════════════════════════════════════
+              EXCLUSIVE CHANNEL VIDEO THEATER (@ashrithvenkat5507)
+          ══════════════════════════════════════ */}
+          <section id="video-theater" className="section-wrapper" style={{ background: "white", position: "relative" }}>
+            <RangoliCorner position="top-right" size={180} />
+            <RangoliCorner position="bottom-left" size={180} />
+
+            <div className="section-inner">
+              <h2 className="section-title">🎬 Official Video Vault (@ashrithvenkat5507)</h2>
+              <p className="section-subtitle">Watch community interviews &amp; cultural stories directly on site</p>
+
+              {/* Category Filter Pills */}
+              <div style={{ display: "flex", justifyContent: "center", gap: "0.6rem", flexWrap: "wrap", marginBottom: "2.5rem" }}>
                 {[
-                  { num: "50+", label: "Stories Recorded" },
-                  { num: "6", label: "Team Members" },
-                  { num: "∞", label: "Cultural Heritage" },
-                  { num: "1", label: "Sacred Mission" },
-                ].map((s) => (
-                  <div key={s.label} className="stat-item">
-                    <span className="stat-num">{s.num}</span>
-                    <span className="stat-label">{s.label}</span>
-                  </div>
+                  "All",
+                  "Oral History",
+                  "Living Traditions",
+                  "Culinary Heritage",
+                  "Folk Music",
+                ].map((cat) => (
+                  <button
+                    key={cat}
+                    className={`filter-pill${selectedCategoryFilter === cat ? " active" : ""}`}
+                    onClick={() => setSelectedCategoryFilter(cat)}
+                  >
+                    {cat}
+                  </button>
                 ))}
               </div>
-            </div>
-          </div>
 
-          <OrnamentDivider />
-
-          {/* Featured Content Preview */}
-          <section className="section-wrapper" style={{ background: "white" }}>
-            <div className="section-mandala-bg-left">
-              <Mandala size={380} opacity={0.05} spinning={false} />
-            </div>
-            <div className="section-inner">
-              <h2 className="section-title">Sacred Traditions We Preserve</h2>
-              <p className="section-subtitle">प्रत्यक्षं किम् प्रमाणम् — See it with your own eyes</p>
+              {/* Video Cards Grid */}
               <div style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-                gap: "1.8rem",
+                gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                gap: "2rem",
               }}>
-                {[
-                  { img: "/elder-telling-stories.jpg", title: "Oral Storytelling", tag: "वाचिक परम्परा" },
-                  { img: "/grandmother-cooking-traditional.jpg", title: "Traditional Culinary Arts", tag: "पाक कला" },
-                  { img: "/man-playing-traditional-music.jpg", title: "Folk Music & Song", tag: "संगीत" },
-                  { img: "/traditional-handicraft-making.jpg", title: "Sacred Handicrafts", tag: "शिल्प कला" },
-                ].map((item) => (
+                {filteredStories.map((story) => (
                   <div
-                    key={item.title}
-                    style={{
-                      borderRadius: "var(--border-r)", overflow: "hidden",
-                      boxShadow: "0 8px 30px rgba(107,26,26,0.12)",
-                      border: "1px solid rgba(212,175,55,0.2)",
-                      transition: "all 0.4s ease", cursor: "pointer",
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLDivElement).style.transform = "translateY(-8px)"
-                      ;(e.currentTarget as HTMLDivElement).style.boxShadow = "0 20px 50px rgba(107,26,26,0.2)"
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLDivElement).style.transform = ""
-                      ;(e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 30px rgba(107,26,26,0.12)"
-                    }}
+                    key={story.id}
+                    className="video-card"
+                    onClick={() => setActiveVideoStory(story)}
                   >
-                    <div style={{ height: "200px", overflow: "hidden" }}>
-                      <img src={item.img} alt={item.title}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }}
-                      />
+                    <div className="video-thumb-wrap">
+                      <img src={story.thumbnail || "/cultural-video-thumbnail.jpg"} alt={story.title} />
+                      <div className="play-overlay">
+                        <div className="play-btn-circle">▶</div>
+                      </div>
+                      <span style={{
+                        position: "absolute", bottom: "10px", left: "10px",
+                        background: "rgba(0,0,0,0.75)", color: "var(--bright-gold)",
+                        fontSize: "0.75rem", padding: "0.2rem 0.6rem", borderRadius: "10px",
+                        fontFamily: "Poppins, sans-serif"
+                      }}>
+                        {story.region || "Channel @ashrithvenkat5507"} • {story.language}
+                      </span>
                     </div>
-                    <div style={{ padding: "1.2rem 1.5rem" }}>
+
+                    <div style={{ padding: "1.4rem", flex: 1, display: "flex", flexDirection: "column" }}>
+                      <span style={{ color: "var(--saffron)", fontSize: "0.8rem", fontWeight: 600, fontFamily: "Poppins, sans-serif" }}>
+                        {story.category}
+                      </span>
+                      <h3 style={{ color: "var(--deep-maroon)", fontSize: "1.15rem", margin: "0.4rem 0 0.6rem", lineHeight: 1.4 }}>
+                        {story.title}
+                      </h3>
+                      <p style={{ color: "#666", fontSize: "0.88rem", lineHeight: 1.6, flex: 1, marginBottom: "1rem" }}>
+                        {story.description}
+                      </p>
                       <div style={{
-                        fontFamily: "'Tiro Devanagari Hindi', serif",
-                        color: "var(--saffron)", fontSize: "0.82rem", marginBottom: "0.3rem"
-                      }}>{item.tag}</div>
-                      <h3 style={{ color: "var(--deep-maroon)", fontSize: "1.1rem" }}>{item.title}</h3>
+                        display: "flex", justifyContent: "space-between", alignItems: "center",
+                        borderTop: "1px solid rgba(212,175,55,0.2)", paddingTop: "0.8rem", fontSize: "0.8rem", color: "#888"
+                      }}>
+                        <span>🎙 By: {story.uploader}</span>
+                        <span style={{ color: "var(--saffron)", fontWeight: 700 }}>▶ Watch &amp; Translate</span>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1247,25 +1624,23 @@ export default function Home() {
 
           {/* Contribute CTA */}
           <section className="contribute-bg">
-            <div className="section-mandala-bg"><Mandala size={500} opacity={1} spinning /></div>
             <div className="diya-row">
               <Diya /><Diya /><Diya />
             </div>
-            <h2>जागो! अपनी परम्परा जगाओ।</h2>
-            <p style={{ fontFamily: "'Tiro Devanagari Hindi', serif", fontSize: "0.95rem", color: "rgba(245,230,211,0.7)", marginBottom: "0.5rem" }}>
-              "Awaken! Awaken your tradition."
+            <h2>जागो! अपनी सांस्कृतिक धरोहर जगाओ।</h2>
+            <p style={{ fontFamily: "'Tiro Devanagari Hindi', serif", fontSize: "1rem", color: "rgba(245,230,211,0.85)", marginBottom: "0.5rem" }}>
+              "Awaken! Honor and preserve every vanishing culture."
             </p>
             <p>
-              Every elder's voice carries centuries of living knowledge. Be the bridge between past and future —
-              record, share, and immortalise the sacred traditions of Sanatan Dharma before they fade.
+              Whether it is tribal song, village oral history, traditional cooking, or artisan carving —
+              record your local elders and share their legacy in our universal archive.
             </p>
             <div style={{ display: "flex", justifyContent: "center", gap: "1.2rem", flexWrap: "wrap" }}>
               <button className="cta-primary" onClick={() => handleNavigation(isLoggedIn ? "upload" : "login")}>
                 🙏 Upload Your Story
               </button>
-              <button className="cta-secondary" style={{ color: "var(--sandalwood)", borderColor: "rgba(245,230,211,0.3)" }}
-                onClick={() => handleNavigation("about")}>
-                🕉 Learn Our Mission
+              <button className="cta-secondary" onClick={() => handleNavigation("about")}>
+                🌿 Learn SSR Mission
               </button>
             </div>
           </section>
@@ -1276,75 +1651,41 @@ export default function Home() {
           ABOUT PAGE
       ══════════════════════════════════════ */}
       {currentPage === "about" && (
-        <section className="about-bg section-wrapper">
-          {/* Hero Strip */}
-          <div className="about-hero-strip" style={{ position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", opacity: 0.06, pointerEvents: "none" }}>
-              <Mandala size={500} opacity={1} spinning />
-            </div>
-            <div style={{ position: "relative", zIndex: 2 }}>
-              <LotusBloom size={80} />
-              <h1 style={{ marginTop: "1rem" }}>About Our Sacred Mission</h1>
-              <p>
-                An SSR initiative of Amrita Vishwa Vidyapeetam — where student researchers, community elders and
-                digital technology converge in service of Sanatan Dharma.
-              </p>
-            </div>
-          </div>
-
-          <OrnamentDivider />
+        <section className="section-wrapper" style={{ background: "white" }}>
+          <RangoliCorner position="top-left" size={220} />
+          <RangoliCorner position="bottom-right" size={220} />
 
           <div className="section-inner">
-            {/* Mission content */}
-            <div className="about-content">
-              <div className="about-text">
-                <h2>Bridging Past &amp; Future</h2>
-                <p>
-                  The <strong>Cultural Heritage Preservation Portal (CHPP)</strong> is a student-led Seva project
-                  under Amrita Vishwa Vidyapeetam's Social Service &amp; Research (SSR) programme. We believe that
-                  Sanatan Dharma is not merely a religion — it is a civilisational consciousness, a living river of
-                  wisdom flowing through generations.
+            <h2 className="section-title">About Virasat (विरासत)</h2>
+            <p className="section-subtitle">Universal Cultural Preservation — Amrita Vishwa Vidyapeetam SSR Initiative</p>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", alignItems: "center", marginBottom: "3rem" }}>
+              <div>
+                <p style={{ fontSize: "1.05rem", lineHeight: "1.9", color: "#444", marginBottom: "1rem" }}>
+                  <strong>Virasat (विरासत)</strong> is an inclusive living vault created by student researchers
+                  from Amrita Vishwa Vidyapeetam under our Social Service &amp; Research (SSR) programme.
                 </p>
-                <p>
-                  Our students sit with village elders, grandmothers in their kitchens, folk musicians in village
-                  squares, and traditional craftsmen in their workshops — documenting traditions that textbooks
-                  cannot capture. Every video uploaded is an act of <em>Seva</em> — selfless service to our ancestors
-                  and to the children who will inherit this legacy.
+                <p style={{ fontSize: "1rem", lineHeight: "1.8", color: "#666", marginBottom: "1rem" }}>
+                  Rooted in the universal principle of <em>Vasudhaiva Kutumbakam</em> ("The World is One Family"), we document and preserve
+                  vanishing traditions across all tribes, indigenous groups, regions, and communities without discrimination.
                 </p>
-                <p>
-                  Through YouTube's global platform and AI-powered multilingual subtitles, these stories of
-                  <em> Dharma, Satya</em> and <em>Parampara</em> now travel across continents — carrying the
-                  fragrance of our culture to the diaspora and the world.
+                <p style={{ fontSize: "1rem", lineHeight: "1.8", color: "#666" }}>
+                  Students record elders, artisans, and storytellers, uploading videos to YouTube channel <a href="https://www.youtube.com/@ashrithvenkat5507" target="_blank" rel="noopener noreferrer" style={{ color: "var(--saffron)", fontWeight: 600 }}>@ashrithvenkat5507</a> and embedding them here.
                 </p>
-                <div className="pillars-grid">
-                  {[
-                    { icon: "🔱", name: "Dharma", desc: "Righteous duty — we preserve what is sacred and true." },
-                    { icon: "🌿", name: "Satya", desc: "Truth — authentic, unfiltered oral knowledge." },
-                    { icon: "🙏", name: "Seva", desc: "Selfless service — students volunteer their time and skill." },
-                    { icon: "📿", name: "Parampara", desc: "Lineage — elder to youth, an unbroken chain." },
-                  ].map((p) => (
-                    <div key={p.name} className="pillar-card">
-                      <h4>{p.icon} {p.name}</h4>
-                      <p>{p.desc}</p>
-                    </div>
-                  ))}
-                </div>
               </div>
-              <div className="about-image-wrap">
-                <img src="/elder-sharing-wisdom-with-youth.jpg" alt="Elder sharing wisdom with youth" />
+              <div style={{ borderRadius: "16px", overflow: "hidden", boxShadow: "0 10px 40px rgba(107,26,26,0.2)", border: "2px solid var(--gold)" }}>
+                <img src="/elder-sharing-wisdom-with-youth.jpg" alt="Elder sharing wisdom" style={{ width: "100%", display: "block" }} />
               </div>
             </div>
 
             <OrnamentDivider />
 
-            {/* Team */}
-            <div className="team-bg" style={{ borderRadius: "20px", overflow: "hidden", margin: "2rem 0" }}>
-              <div style={{ textAlign: "center", padding: "2.5rem 2rem 1rem" }}>
-                <h2 className="section-title">Our Devoted Team</h2>
-                <p className="section-subtitle" style={{ marginBottom: "0" }}>सेवा परमो धर्मः — Service is the highest Dharma</p>
-              </div>
-              <OrnamentDivider />
-              <div className="team-grid" style={{ paddingTop: "2rem", paddingBottom: "2rem" }}>
+            {/* Team Members */}
+            <div style={{ marginTop: "3rem" }}>
+              <h2 className="section-title" style={{ fontSize: "2rem" }}>Our Devoted SSR Team</h2>
+              <p className="section-subtitle">Amrita Vishwa Vidyapeetam Student Researchers</p>
+
+              <div className="team-grid">
                 {teamMembers.map((member) => (
                   <div key={member.id} className="team-card">
                     <img className="team-card-img" src={member.image || "/placeholder-user.jpg"} alt={member.name} />
@@ -1352,103 +1693,130 @@ export default function Home() {
                       <h3>{member.name}</h3>
                       <div className="team-role">✦ {member.role}</div>
                       <div className="team-year">{member.year}</div>
-                      <p>{member.contribution}</p>
+                      <p style={{ fontSize: "0.88rem", color: "#666", lineHeight: 1.6 }}>{member.contribution}</p>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-
-            <OrnamentDivider />
-
-            {/* University Banner */}
-            <div style={{
-              background: "linear-gradient(135deg, #3D0C0C, #6B1A1A)",
-              borderRadius: "16px", padding: "2.5rem", textAlign: "center",
-              border: "1px solid rgba(212,175,55,0.25)",
-              boxShadow: "0 10px 35px rgba(61,12,12,0.25)",
-            }}>
-              <div style={{ fontSize: "2.5rem", marginBottom: "0.8rem", animation: "omPulse 3s ease-in-out infinite" }}>🕉</div>
-              <h3 style={{ color: "var(--bright-gold)", fontSize: "1.6rem", marginBottom: "0.6rem" }}>
-                Amrita Vishwa Vidyapeetam
-              </h3>
-              <p style={{ color: "rgba(245,230,211,0.8)", maxWidth: "550px", margin: "0 auto", lineHeight: 1.8, fontFamily: "'Poppins',sans-serif", fontSize: "0.9rem" }}>
-                Founded by Sri Mata Amritanandamayi Devi — guided by compassion, devotion and the transformative power of selfless service.
-              </p>
             </div>
           </div>
         </section>
       )}
 
       {/* ══════════════════════════════════════
-          UPLOAD PAGE
+          UPLOAD PAGE (CONNECTED TO BACKEND API)
       ══════════════════════════════════════ */}
       {currentPage === "upload" && (
         <div className="upload-page-bg">
-          <div className="section-mandala-bg" style={{ top: "10%", right: "-60px", opacity: 0.07 }}>
-            <Mandala size={380} opacity={1} spinning={false} />
-          </div>
+          <RangoliCorner position="top-right" size={200} />
+          <RangoliCorner position="bottom-left" size={200} />
+
           <div className="upload-card">
             {uploadSuccess ? (
-              <div className="upload-success">
-                <span className="success-icon">🙏</span>
-                <h3>Dhanyavaad! धन्यवाद</h3>
-                <p>Your sacred story has been submitted for review. Once approved, it will be shared on our YouTube channel — preserving this tradition for generations to come.</p>
+              <div style={{ textAlign: "center", padding: "2rem" }}>
+                <span style={{ fontSize: "4rem", display: "block", marginBottom: "1rem" }}>🙏</span>
+                <h3 style={{ color: "var(--deep-maroon)", fontSize: "1.8rem", marginBottom: "0.8rem" }}>
+                  Dhanyavaad! धन्यवाद
+                </h3>
+                <p style={{ color: "#666", fontFamily: "Poppins, sans-serif", lineHeight: 1.7 }}>
+                  Your story has been saved directly to our backend archive! It is now featured in our in-site video theater for all to watch.
+                </p>
                 <OrnamentDivider />
-                <button className="cta-primary" style={{ marginTop: "1rem" }} onClick={() => { setUploadSuccess(false); setCurrentPage("dashboard") }}>
-                  Go to Dashboard
+                <button
+                  className="cta-primary"
+                  style={{ marginTop: "1rem" }}
+                  onClick={() => {
+                    setUploadSuccess(false)
+                    setCurrentPage("home")
+                  }}
+                >
+                  Watch Story in Archive
                 </button>
               </div>
             ) : (
               <>
-                <div className="upload-card-header">
-                  <span style={{ fontSize: "2.5rem", display: "block", marginBottom: "0.5rem", animation: "floatUp 3s ease-in-out infinite" }}>📹</span>
-                  <h2>Share Your Sacred Story</h2>
-                  <p>Submit a video for review — help us preserve Sanatan Dharma's living traditions.</p>
+                <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+                  <span style={{ fontSize: "2.5rem", display: "block", marginBottom: "0.5rem" }}>📹</span>
+                  <h2 style={{ color: "var(--deep-maroon)", fontSize: "1.8rem" }}>Contribute to Virasat</h2>
+                  <p style={{ color: "#888", fontSize: "0.9rem", fontFamily: "Poppins, sans-serif" }}>
+                    Share stories from channel @ashrithvenkat5507 or local community recordings.
+                  </p>
                 </div>
+
                 <OrnamentDivider />
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault()
-                    setUploadSuccess(true)
-                  }}
-                >
+
+                <form onSubmit={handleUploadSubmit}>
                   <div className="form-group">
                     <label>Story Title *</label>
-                    <input type="text" placeholder="e.g., Grandmother's Pongal Ritual" required />
+                    <input
+                      type="text"
+                      placeholder="e.g., Elder Oral Lore Interview"
+                      value={uploadTitle}
+                      onChange={(e) => setUploadTitle(e.target.value)}
+                      required
+                    />
                   </div>
+
                   <div className="form-group">
-                    <label>Cultural Category *</label>
-                    <select required>
-                      <option value="">Select a category</option>
-                      <option>Oral Traditions & Stories</option>
-                      <option>Traditional Cuisine & Recipes</option>
-                      <option>Folk Music & Dance</option>
-                      <option>Sacred Rituals & Festivals</option>
-                      <option>Traditional Crafts & Arts</option>
-                      <option>Medicinal & Herbal Wisdom</option>
-                      <option>Agricultural Traditions</option>
-                      <option>Other</option>
+                    <label>Category *</label>
+                    <select
+                      value={uploadCategory}
+                      onChange={(e) => setUploadCategory(e.target.value)}
+                      required
+                    >
+                      <option>Oral History & Traditions</option>
+                      <option>Folk Lore & Living Traditions</option>
+                      <option>Culinary Heritage</option>
+                      <option>Folk Music & Song</option>
+                      <option>Indigenous Crafts & Arts</option>
                     </select>
                   </div>
+
                   <div className="form-group">
-                    <label>Description</label>
-                    <textarea placeholder="Briefly describe the tradition, who is featured, and why it matters..." />
+                    <label>Region / Community *</label>
+                    <input
+                      type="text"
+                      placeholder="e.g., Andhra Pradesh, Telangana"
+                      value={uploadRegion}
+                      onChange={(e) => setUploadRegion(e.target.value)}
+                      required
+                    />
                   </div>
+
                   <div className="form-group">
-                    <label>Video File *</label>
-                    <div
-                      className="drop-zone"
-                      onClick={() => document.getElementById("video-input")?.click()}
-                    >
-                      <span className="drop-zone-icon">🎬</span>
-                      <p>Click or drag & drop your video here</p>
-                      <span>MP4, MOV, AVI — up to 500MB</span>
-                    </div>
-                    <input type="file" id="video-input" accept="video/*" style={{ display: "none" }} />
+                    <label>Language *</label>
+                    <input
+                      type="text"
+                      placeholder="e.g., Telugu, English, Hindi"
+                      value={uploadLanguage}
+                      onChange={(e) => setUploadLanguage(e.target.value)}
+                      required
+                    />
                   </div>
+
+                  <div className="form-group">
+                    <label>YouTube Video Link or ID (from @ashrithvenkat5507) *</label>
+                    <input
+                      type="text"
+                      placeholder="e.g., https://www.youtube.com/watch?v=YOUR_VIDEO_ID"
+                      value={uploadVideoUrl}
+                      onChange={(e) => setUploadVideoUrl(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Description & Background</label>
+                    <textarea
+                      placeholder="Briefly describe the elder, interview, or tradition..."
+                      value={uploadDescription}
+                      onChange={(e) => setUploadDescription(e.target.value)}
+                      rows={3}
+                    />
+                  </div>
+
                   <button type="submit" className="form-submit-btn">
-                    🙏 Submit Sacred Story
+                    🙏 Save Story to Virasat Vault
                   </button>
                 </form>
               </>
@@ -1462,234 +1830,135 @@ export default function Home() {
       ══════════════════════════════════════ */}
       {currentPage === "dashboard" && (
         <div className="dashboard-page-bg">
-          <div className="section-mandala-bg" style={{ top: "50%", right: "-80px", opacity: 0.06 }}>
-            <Mandala size={420} opacity={1} spinning={false} />
-          </div>
-          <div className="dashboard-inner">
-            <div className="welcome-banner">
-              <p className="greeting-shloka">नमस्ते — Namasthe</p>
-              <h2>🙏 Welcome, {userName}!</h2>
-              <p>
-                "सर्वे भवन्तु सुखिनः" — May all be happy. You are now part of a sacred mission to preserve
-                the timeless wisdom of Sanatan Dharma.
+          <div style={{ maxW: "1200px", margin: "0 auto", position: "relative", zIndex: 2 }}>
+            <div style={{
+              background: "linear-gradient(135deg, #3D0C0C 0%, #6B1A1A 100%)",
+              borderRadius: "20px", padding: "3rem", color: "white", marginBottom: "2rem",
+              border: "1px solid var(--gold)", textAlign: "center"
+            }}>
+              <h2 style={{ color: "var(--bright-gold)", fontSize: "2rem" }}>🙏 Namaste, {userName}!</h2>
+              <p style={{ color: "var(--sandalwood)", marginTop: "0.5rem" }}>
+                Welcome to your Virasat portal dashboard. Manage your contributions from YouTube channel @ashrithvenkat5507.
               </p>
             </div>
 
-            <div className="dashboard-grid">
-              <div className="dashboard-card">
-                <span className="dashboard-card-icon">📤</span>
-                <h3>Upload a New Story</h3>
-                <p>Share cultural knowledge with the community. Record elders, rituals, folk arts, traditional wisdom and submit your video for review.</p>
-                <button className="cta-primary" onClick={() => setCurrentPage("upload")}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "2rem" }}>
+              <div className="goal-card">
+                <span className="goal-icon">📹</span>
+                <h3>Contribute Story</h3>
+                <p>Upload new video stories to the backend archive.</p>
+                <button className="cta-primary" style={{ marginTop: "1rem" }} onClick={() => setCurrentPage("upload")}>
                   Upload Now
                 </button>
               </div>
-              <div className="dashboard-card">
-                <span className="dashboard-card-icon">🎬</span>
-                <h3>Watch on YouTube</h3>
-                <p>Explore the growing archive of cultural stories. Watch interviews, learn traditions, and connect with your heritage on our YouTube channel.</p>
-                <button className="cta-primary" onClick={() => window.open("https://www.youtube.com/@ashrithvenkat5507", "_blank")}>
-                  Visit YouTube
+              <div className="goal-card">
+                <span className="goal-icon">🎬</span>
+                <h3>Universal Video Archive</h3>
+                <p>Browse and play all uploaded cultural stories right inside the website iframe player.</p>
+                <button className="cta-primary" style={{ marginTop: "1rem" }} onClick={() => setCurrentPage("home")}>
+                  Watch Archive
                 </button>
               </div>
-              <div className="dashboard-card">
-                <span className="dashboard-card-icon">🕉</span>
-                <h3>Our Mission</h3>
-                <p>Learn more about the four pillars of this project — Dharma, Satya, Seva and Parampara — and how Amrita Vishwa Vidyapeetam is leading this sacred initiative.</p>
-                <button className="cta-primary" onClick={() => setCurrentPage("about")}>
-                  Learn More
-                </button>
-              </div>
-              <div className="dashboard-card">
-                <span className="dashboard-card-icon">🪷</span>
-                <h3>Cultural Categories</h3>
-                <p>From oral storytelling and folk music to sacred recipes and ancient crafts — explore the rich tapestry of traditions we are documenting.</p>
-                <button className="cta-primary" onClick={() => window.open("https://www.youtube.com/@ashrithvenkat5507", "_blank")}>
-                  Explore Stories
-                </button>
-              </div>
-            </div>
-
-            <OrnamentDivider />
-
-            {/* Mini pillars reminder */}
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-              gap: "1rem", marginTop: "0.5rem",
-            }}>
-              {[
-                { icon: "🔱", name: "Dharma", desc: "Righteous duty to preserve" },
-                { icon: "🌿", name: "Satya", desc: "Truth in every tradition" },
-                { icon: "🙏", name: "Seva", desc: "Service above self" },
-                { icon: "📿", name: "Parampara", desc: "The unbroken lineage" },
-              ].map((p) => (
-                <div key={p.name} className="pillar-card" style={{ textAlign: "center", padding: "1.5rem 1rem" }}>
-                  <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>{p.icon}</div>
-                  <h4 style={{ color: "var(--saffron)", fontFamily: "'Poppins',sans-serif", marginBottom: "0.3rem" }}>{p.name}</h4>
-                  <p style={{ color: "#888", fontSize: "0.82rem" }}>{p.desc}</p>
-                </div>
-              ))}
             </div>
           </div>
         </div>
       )}
 
       {/* ══════════════════════════════════════
-          LOGIN PAGE
+          LOGIN & SIGNUP PAGES
       ══════════════════════════════════════ */}
       {currentPage === "login" && (
         <div className="auth-page-bg">
-          {/* Floating petals */}
-          {["🌸", "🪷", "🌺", "✿", "🌼"].map((p, i) => (
-            <span
-              key={i} className="petal"
-              style={{
-                left: `${10 + i * 18}%`,
-                animationDuration: `${6 + i * 1.5}s`,
-                animationDelay: `${i * 1.2}s`,
-                fontSize: `${1.2 + (i % 3) * 0.4}rem`,
-              }}
-            >{p}</span>
-          ))}
           <div className="auth-card">
-            <div className="auth-card-header">
-              <span className="om">🕉</span>
-              <h2>Welcome Back</h2>
-              <p>Login to continue your sacred Seva</p>
-            </div>
-            <OrnamentDivider />
+            <h2 style={{ textAlign: "center", color: "var(--deep-maroon)", marginBottom: "1.5rem" }}>
+              🌿 Login to Virasat (विरासत)
+            </h2>
             <form onSubmit={handleLogin}>
               <div className="form-group">
-                <label>Email Address</label>
-                <input type="email" placeholder="Enter your email"
-                  value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required />
+                <label>Email</label>
+                <input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required />
               </div>
               <div className="form-group">
                 <label>Password</label>
-                <input type="password" placeholder="Enter your password"
-                  value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required />
+                <input type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required />
               </div>
-              <button type="submit" className="form-submit-btn">
-                🙏 Login
-              </button>
+              <button type="submit" className="form-submit-btn">Login</button>
             </form>
-            <div className="auth-switch">
-              Don&apos;t have an account?{" "}
-              <a onClick={() => setCurrentPage("signup")}>Sign up here</a>
-            </div>
+            <p style={{ textAlign: "center", marginTop: "1rem", fontSize: "0.9rem", color: "#666" }}>
+              Don&apos;t have an account? <a style={{ color: "var(--saffron)", cursor: "pointer", fontWeight: 700 }} onClick={() => setCurrentPage("signup")}>Sign up</a>
+            </p>
           </div>
         </div>
       )}
 
-      {/* ══════════════════════════════════════
-          SIGNUP PAGE
-      ══════════════════════════════════════ */}
       {currentPage === "signup" && (
         <div className="auth-page-bg">
-          {["🪷", "🌸", "✿", "🌺", "🌼"].map((p, i) => (
-            <span
-              key={i} className="petal"
-              style={{
-                left: `${5 + i * 20}%`,
-                animationDuration: `${7 + i * 1.3}s`,
-                animationDelay: `${i * 0.9}s`,
-                fontSize: `${1.1 + (i % 3) * 0.45}rem`,
-              }}
-            >{p}</span>
-          ))}
           <div className="auth-card">
-            <div className="auth-card-header">
-              <span className="om">🕉</span>
-              <h2>Join the Seva</h2>
-              <p>Create your account and become a cultural guardian</p>
-            </div>
-            <OrnamentDivider />
+            <h2 style={{ textAlign: "center", color: "var(--deep-maroon)", marginBottom: "1.5rem" }}>
+              🌿 Sign Up for Virasat (विरासत)
+            </h2>
             <form onSubmit={handleSignup}>
               <div className="form-group">
                 <label>Full Name</label>
-                <input type="text" placeholder="Enter your full name"
-                  value={signupName} onChange={(e) => setSignupName(e.target.value)} required />
+                <input type="text" value={signupName} onChange={(e) => setSignupName(e.target.value)} required />
               </div>
               <div className="form-group">
-                <label>Email Address</label>
-                <input type="email" placeholder="Enter your email"
-                  value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} required />
+                <label>Email</label>
+                <input type="email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} required />
               </div>
               <div className="form-group">
                 <label>Password</label>
-                <input type="password" placeholder="Create a password (min 6 characters)"
-                  value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} required />
+                <input type="password" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} required />
               </div>
               <div className="form-group">
                 <label>Confirm Password</label>
-                <input type="password" placeholder="Confirm your password"
-                  value={signupConfirmPassword} onChange={(e) => setSignupConfirmPassword(e.target.value)} required />
+                <input type="password" value={signupConfirmPassword} onChange={(e) => setSignupConfirmPassword(e.target.value)} required />
               </div>
-              <button type="submit" className="form-submit-btn">
-                🌺 Create Account
-              </button>
+              <button type="submit" className="form-submit-btn">Create Account</button>
             </form>
-            <div className="auth-switch">
-              Already have an account?{" "}
-              <a onClick={() => setCurrentPage("login")}>Login here</a>
-            </div>
+            <p style={{ textAlign: "center", marginTop: "1rem", fontSize: "0.9rem", color: "#666" }}>
+              Already have an account? <a style={{ color: "var(--saffron)", cursor: "pointer", fontWeight: 700 }} onClick={() => setCurrentPage("login")}>Login</a>
+            </p>
           </div>
         </div>
       )}
 
       {/* ══════════════════════════════════════
-          FOOTER (all pages)
+          FOOTER
       ══════════════════════════════════════ */}
       <footer className="sacred-footer">
-        <div className="footer-mandala">
-          <Mandala size={500} opacity={1} spinning />
-        </div>
         <div className="footer-content">
           <div>
-            <div className="footer-logo">
-              <span className="footer-logo-om">🕉</span>
-              <span className="footer-logo-text">CHPP</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "1rem" }}>
+              <span style={{ fontSize: "1.8rem", color: "var(--bright-gold)" }}>🌿</span>
+              <span style={{ fontFamily: "Cinzel Decorative, serif", fontSize: "1.35rem", color: "var(--gold)" }}>
+                विरासत (Virasat)
+              </span>
             </div>
-            <div className="footer-tagline">सर्वे भवन्तु सुखिनः</div>
-            <p className="footer-section" style={{ color: "rgba(255,255,255,0.65)", fontFamily: "'Poppins',sans-serif", fontSize: "0.88rem", lineHeight: 1.8 }}>
-              Cultural Heritage Preservation Portal — an SSR initiative of Amrita Vishwa Vidyapeetam,
-              dedicated to preserving and celebrating the timeless wisdom of Sanatan Dharma.
+            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.88rem", lineHeight: 1.8 }}>
+              Virasat (विरासत) — Universal Living Vault for Vanishing Cultural Heritage. Featuring content from YouTube Channel <a href="https://www.youtube.com/@ashrithvenkat5507" target="_blank" rel="noopener noreferrer" style={{ color: "var(--bright-gold)", textDecoration: "underline" }}>@ashrithvenkat5507</a>.
+              Amrita Vishwa Vidyapeetam SSR Initiative.
             </p>
           </div>
-          <div className="footer-section">
-            <h3>Quick Links</h3>
-            <a onClick={() => setCurrentPage("home")}>Home</a>
-            <a onClick={() => setCurrentPage("about")}>About Us</a>
-            <a onClick={() => handleNavigation("upload")}>Upload Story</a>
-            <a href="https://www.youtube.com/@ashrithvenkat5507" target="_blank" rel="noopener noreferrer">YouTube Channel</a>
+
+          <div>
+            <h3 style={{ color: "var(--gold)", marginBottom: "1rem" }}>Quick Links</h3>
+            <p><a onClick={() => setCurrentPage("home")}>Home</a></p>
+            <p><a onClick={() => setCurrentPage("about")}>About SSR Team</a></p>
+            <p><a onClick={() => setCurrentPage("upload")}>Contribute Video Story</a></p>
+            <p><a href="https://www.youtube.com/@ashrithvenkat5507" target="_blank" rel="noopener noreferrer">YouTube @ashrithvenkat5507</a></p>
           </div>
-          <div className="footer-section">
-            <h3>Sacred Pillars</h3>
-            <p>🔱 Dharma — Righteous Duty</p>
-            <p>🌿 Satya — Truth</p>
-            <p>🙏 Seva — Selfless Service</p>
-            <p>📿 Parampara — Sacred Lineage</p>
-          </div>
-          <div className="footer-section">
-            <h3>Connect</h3>
-            <p>📧 chpp@amrita.edu</p>
-            <p>🏛️ Amrita Vishwa Vidyapeetam</p>
-            <div className="social-row">
-              <a className="social-btn" href="https://www.youtube.com/@ashrithvenkat5507" target="_blank" rel="noopener noreferrer" title="YouTube">▶</a>
-              <a className="social-btn" href="#" title="Instagram">📷</a>
-              <a className="social-btn" href="#" title="Twitter / X">𝕏</a>
-              <a className="social-btn" href="#" title="Facebook">f</a>
-            </div>
+
+          <div>
+            <h3 style={{ color: "var(--gold)", marginBottom: "1rem" }}>Universal Support</h3>
+            <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.7)" }}>
+              In-player translation available for English, Telugu, Hindi, Tamil, Kannada, Malayalam &amp; Marathi.
+            </p>
           </div>
         </div>
-        <div className="footer-bottom">
-          <OrnamentDivider light />
-          <p style={{ marginTop: "1rem" }}>
-            &copy; 2025 <strong>Cultural Heritage Preservation Portal</strong> — Amrita Vishwa Vidyapeetam SSR Initiative.
-            All rights reserved. &nbsp;|&nbsp; Built with 🙏 and &nbsp;
-            <strong>Seva</strong>
-          </p>
+
+        <div style={{ textAlign: "center", paddingTop: "2rem", color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>
+          <p>© 2025 विरासत (Virasat) — Cultural Heritage Preservation Vault. Amrita Vishwa Vidyapeetam SSR Initiative. All rights reserved.</p>
         </div>
       </footer>
     </>
