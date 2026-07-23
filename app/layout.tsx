@@ -1,14 +1,23 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
-  title: 'CHPP',
-  description: 'Created with v0',
+  title: 'CHPP — Cultural Heritage Preservation Portal | Sanatan Dharma',
+  description:
+    'Preserving the timeless wisdom of Sanatan Dharma — stories, traditions, and cultural heritage recorded by students of Amrita Vishwa Vidyapeetam through the SSR initiative. Dharma | Satya | Seva | Parampara.',
+  keywords: [
+    'Sanatan Dharma',
+    'cultural heritage',
+    'preservation',
+    'Amrita Vishwa Vidyapeetam',
+    'SSR',
+    'Indian culture',
+    'traditions',
+    'elders wisdom',
+    'parampara',
+    'dharma',
+  ],
   generator: 'v0.app',
   icons: {
     icon: [
@@ -36,7 +45,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans antialiased`}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body>
         {children}
         <Analytics />
       </body>
